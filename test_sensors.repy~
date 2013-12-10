@@ -73,21 +73,17 @@ def json_rpc(methodname, *args):
   timeStart = (getruntime() - start)*1000
   log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
   
-  result = ""
   start = getruntime()
   while True:
     try:
       # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-      #break
+      result = sl4a_socket.recv(1000)
+      break
     except SocketWouldBlockError:
       # AR: Sleeping 30ms is excessive. Let's just spin in a tight loop 
       #     and burn a few CPU cycles.
-      log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
+      #log('--SocketWouldBlockError in receiving ' + methodname + '. Sleep 30 ms.\n')
       #sleep(0.03)
-      if result != "":
-        break
       pass
     except SocketClosedRemote:
       # That's okay.
