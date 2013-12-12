@@ -1,69 +1,12 @@
 """
-battery.repy -- trying to use the SL4A JSON bridge to read battery info
+bluetooth.repy -- trying to use the SL4A JSON bridge to read bluetooth info
 
 Yanyan Zhuang, UBC 
 
 Change log:
-v 0.0.1, 20131210 YZ
+v 0.0.1, 20131211 YZ
   Initial experiment, based on the Apache-licensed code in 
   /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
-  
-Example output:
-total time for batteryStartMonitoring: 76.849937439ms
-batteryStartMonitoring :
-null 
-
-total time for batteryCheckPresent: 7.32278823853ms
-batteryCheckPresent :
-true 
-
-battery health data: 1 - unknown; 2 - good; 3 - overheat; 4 - dead; 5 - over voltage; 6 - unspecified failure;
-total time for batteryGetHealth: 6.93082809448ms
-batteryGetHealth :
-2 
-
-total time for batteryGetLevel: 6.83307647705ms
-batteryGetLevel :
-99 
-
-plug type data: -1 - unknown; 0 - unplugged; 1 - power source is an AC charger; 2 - power source is a USB port
-total time for batteryGetPlugType: 8.34798812866ms
-batteryGetPlugType :
-2 
-
-battery status data: 1 - unknown; 2 - charging; 3 - discharging; 4 - not charging; 5 - full;
-total time for batteryGetStatus: 7.35282897949ms
-batteryGetStatus :
-3 
-
-total time for batteryGetTechnology: 15.0377750397ms
-batteryGetTechnology :
-Li-ion 
-
-total time for batteryGetTemperature: 14.8468017578ms
-batteryGetTemperature :
-255 
-
-total time for batteryGetVoltage: 7.56692886353ms
-batteryGetVoltage :
-4147 
-
-total time for readBatteryData: 7.96699523926ms
-readBatteryData :
-status : 3 
-health : 2 
-voltage : 4147 
-temperature : 255 
-level : 99 
-battery_present : true 
-technology : Li-ion 
-plugged : 2 
-
-total time for batteryStopMonitoring: 7.54117965698ms
-batteryStopMonitoring :
-null 
-
-
 """
 
 def usage():
