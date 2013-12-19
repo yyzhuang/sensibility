@@ -1,0 +1,47 @@
+"""
+test_sensors.repy -- trying to use the SL4A JSON bridge to read sensors
+
+Yanyan Zhuang
+
+Change log:
+v 0.0.1, 20131126 1350 AR
+  Initial experiment, based on the Apache-licensed code in 
+  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("android")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("environment:\n")
+    result = android_get_environment(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("intent:\n")
+    result = android_get_intent(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("make a toast:\n")
+    result = android_make_toast(sl4a_socket, "Happy holidays!")
+    log(result + '\n\n')
+    
+    log("vibrating....:\n")
+    result = android_vibrate(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
