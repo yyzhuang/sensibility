@@ -1,0 +1,47 @@
+"""
+test_contacts.repy -- trying to use the SL4A JSON bridge to read contacts
+
+Yanyan Zhuang
+
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("contacts")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("get a list of all contacts:\n")
+    result = contacts_get(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get contacts by id:\n")
+    result = contacts_get_by_id(sl4a_socket, 285)
+    log(result + '\n\n')
+    
+    log("all possible attributes for contacts:\n")
+    result = contacts_get_attributes(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get the number of contacts:\n")
+    result = contacts_get_count(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get all contact IDs:\n")
+    result = contacts_get_ids(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
