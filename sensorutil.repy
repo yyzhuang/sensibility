@@ -1,0 +1,156 @@
+"""
+<Program>
+  sensorutil.repy
+	
+<Date Started>
+  December 18th, 2013
+	
+<Author>
+  Lai Wang and Yanyan Zhuang
+	
+<Purpose>
+  Provide utility methods for reading sensors
+	 
+"""
+
+
+def usage():
+  """
+  <Purpose>
+    Upon and exceptions caused by inappropriate user input, print usage
+    
+  <Arguments>
+    None
+    
+  <Return>
+    None
+    
+  """
+  log("""
+Usage:
+  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
+    export AP_PORT=45678
+  2) Start SL4A in server mode using am, the Activity Manager, on that port:
+    (CAUTION: That's one long line!)
+    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n 
+    com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher 
+    --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
+  3) Finally, run this program and supply it with the AP_PORT:
+    python repy.py restrictionsfile test_sensors.repy $AP_PORT
+""")
+
+
+
+
+
+def sl4a_dic_paser(result_string):
+  """
+  <Purpose>
+    Parse an input string to JSON format
+    
+  <Arguments>
+    result_string - the input string that needs to be parsed
+    
+  <Return>
+    A JSON dictionary after parsing
+    
+  """
+
+  # We need a real, much better parser!!
+  try:
+    result_string = result_string.replace('null', '"null"')
+    result_string = result_string.replace('true', '"true"')
+    result_string = result_string.replace('false', '"false"')
+    vn = createvirtualnamespace('json_dic=' + result_string, "eval_json_string")
+    result_context = vn.evaluate(_context)
+    return result_context['json_dic']
+  except Exception, e:
+    log("malformed input,", str(e), "\n")
+    exitall()
+ 
+ 
+    
+    
+    
+def log_dic(input_dic):
+  """
+  <Purpose>
+    Print the input JSON dictionary recursively
+    
+  <Arguments>
+    input_dic - the input JSON dictionary 
+    
+  <Return>
+    None
+    
+  """
+
+  # Input a result, the result can be a variable or dictionary
+  if type(input_dic) is dict:
+    for element in input_dic:
+      log(element, ":")
+      if type(input_dic[element]) is dict:
+        log("\n")
+        log_dic(input_dic[element])
+      else:
+        log(input_dic[element], "\n")
+  else:
+    log(input_dic, "\n")
+ 
+ 
+    
+    
+    
+def json_rpc(sl4a_socket, methodname, *args): 
+  """
+  <Purpose>
+    Establish an RPC with SL4A with sl4a_socket, call method 
+    methodname with args
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    methodname  - the method to be called remotely, e.g., 
+                  android_get_environment
+    args        - the arguments of methodname
+    
+  <Return>
+    A string of returned result by methodname
+    
+  """
+ 
+  args_List = []
+  if args != None:
+    for param in args:
+      args_List.append(param)
+      
+  jsonstring = '{"params": ' + str(args_List) + \
+      ', "id": 0, "method": "' + methodname + '"}\n'
+  bytes_sent = 0
+  
+  while bytes_sent<len(jsonstring):
+    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:]) 
+  
+  result = ""
+  while True:
+    try:
+      data = sl4a_socket.recv(2000)
+      result = result + data
+    except SocketWouldBlockError:
+      if result != "":
+        break
+      pass
+    except SocketClosedRemote:
+      pass
+      
+  return result
+  
+  """# Not using parser for now!
+  result_dic = sl4a_dic_paser(result)
+  
+  if not type(result_dic) is dict:
+    log("Error parsing.\n")
+    exitall()
+    
+  log_dic(result_dic['result'])
+  return result_dic"""
