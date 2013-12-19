@@ -86,3 +86,48 @@ def android_make_toast(sl4a_socket, toast_string):
   """
   result = json_rpc(sl4a_socket, "makeToast", toast_string)  
   return result
+  
+  
+  
+  
+def android_notify(sl4a_socket, title, message):
+  """
+  <Purpose>
+    Displays a notification that will be canceled when the user clicks on it. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    title - the string of notification
+    message - the string of the message to display
+    
+  <Return>
+    Returns a result, e.g., {"error":null,"id":0,"result":null}
+    
+  """
+  result = json_rpc(sl4a_socket, "notify", title, message)  
+  return result
+  
+  
+  
+  
+def android_vibrate(sl4a_socket, duration = None):
+  """
+  <Purpose>
+    Vibrates the phone or a specified duration in milliseconds. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    duration - duration in milliseconds (default=300)
+    
+  <Return>
+    Returns a result, e.g., {"error":null,"id":0,"result":null}
+    
+  """
+  if duration != None:
+    result = json_rpc(sl4a_socket, "vibrate", duration)  
+  else:
+    result = json_rpc(sl4a_socket, "vibrate")
+    
+  return result

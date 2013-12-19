@@ -126,8 +126,8 @@ def json_rpc(sl4a_socket, methodname, *args):
       
   jsonstring = '{"params": ' + str(args_List) + \
       ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
-  
+      
+  bytes_sent = 0  
   while bytes_sent<len(jsonstring):
     bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:]) 
   
