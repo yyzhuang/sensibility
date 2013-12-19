@@ -1,0 +1,75 @@
+"""
+test_sensors.repy -- trying to use the SL4A JSON bridge to read sensors
+
+Yanyan Zhuang
+
+Change log:
+v 0.0.1, 20131126 1350 AR
+  Initial experiment, based on the Apache-licensed code in 
+  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("battery")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("starting tracking battery state:\n")
+    result = battery_start_monitoring(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("check the most recently received battery presence data:\n")
+    result = battery_check_present(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get battery health data:\n")
+    result = battery_get_health(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get battery level (percentage):\n")
+    result = battery_get_level(sl4a_socket)
+    log(result + '\n\n') 
+    
+    log("get battery plug type:\n")
+    result = battery_get_plug_type(sl4a_socket)
+    log(result + '\n\n')   
+    
+    log("get battery status:\n")
+    result = battery_get_status(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get battery technology:\n")
+    result = battery_get_technology(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get battery temperature:\n")
+    result = battery_get_temperature(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get battery voltage:\n")
+    result = battery_get_voltage(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("read battery data:\n")
+    result = battery_read_data(sl4a_socket)
+    log(result + '\n\n')   
+    
+    log("stopping tracking battery state:\n")
+    result = battery_stop_monitoring(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+

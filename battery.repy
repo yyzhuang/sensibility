@@ -1,13 +1,22 @@
 """
-battery.repy -- trying to use the SL4A JSON bridge to read battery info
+<Program>
+  battery.repy 
+  Variables are mostly from: 
+  http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
+	
+<Date Started>
+  December 19th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Trying to use the SL4A JSON bridge to read battery info
+	 
+"""
 
-Yanyan Zhuang, UBC 
 
-Change log:
-v 0.0.1, 20131210 YZ
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
-  
+"""  
 Example output:
 total time for batteryStartMonitoring: 76.849937439ms
 batteryStartMonitoring :
@@ -66,153 +75,271 @@ null
 
 """
 
-def usage():
-  log("""
-battery.repy -- check out the SL4A JSON interface to battery 
-http://www.mithril.com.au/android/doc/AndroidFacade.html
-  
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
+
+dy_import_module_symbols("sensorutil")
 
 
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  # We need a real parser!!
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
+
+
+def battery_start_monitoring(sl4a_socket):
+  """
+  <Purpose>
+    Starts tracking battery state. 
     
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
     
-    
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
-  else:
-    log(input_dic, "\n")
-    
-    
-    
-def json_rpc(methodname, *args):  
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
-  
-  start = getruntime()
-  while bytes_sent<len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-  timeStart = (getruntime() - start)*1000
-  #log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
-  
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-    except SocketWouldBlockError:
-      #log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      pass
-  timeDone = (getruntime() - start)*1000
-  #log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + ': ' + result + '\n')
-  
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":null}
+       
+  """
+  result = json_rpc(sl4a_socket, "batteryStartMonitoring")  
+  return result
   
 
-if callfunc=="initialize":
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
-    usage()
-    exitall()
-  
-  ############## set up connection to sl4a ################
-  
-  start = getruntime()
-  # Connect to SL4A, do some random test.
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  time_connect = 'time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n'
-  #log(time_connect + '\n')
-  
-  while True:
-    json_rpc("batteryStartMonitoring")
-    log('\n')
-    
-    json_rpc("batteryCheckPresent")
-    log('\n')
-    
-    log("battery health data: 1 - unknown; 2 - good; 3 - overheat; \
-    4 - dead; 5 - over voltage; 6 - unspecified failure;\n")
-    json_rpc("batteryGetHealth")
-    log('\n')
-    
-    json_rpc("batteryGetLevel")
-    log('\n')
-        
-    log("plug type data: -1 - unknown; 0 - unplugged; 1 - power \
-    source is an AC charger; 2 - power source is a USB port\n")
-    json_rpc("batteryGetPlugType")
-    log('\n')
-    
-    log("battery status data: 1 - unknown; 2 - charging; \
-    3 - discharging; 4 - not charging; 5 - full;\n")
-    json_rpc("batteryGetStatus")
-    log('\n')
-    
-    json_rpc("batteryGetTechnology")
-    log('\n')
-    json_rpc("batteryGetTemperature")
-    log('\n')
-    json_rpc("batteryGetVoltage")
-    log('\n')
-    # this call provides all the info above in a dic
-    #..what's the point of the above calls?
-    json_rpc("readBatteryData")   
-    log('\n')
-    
-    json_rpc("batteryStopMonitoring")
-    log('\n')
 
-    sleep(60)
+
+
+def battery_stop_monitoring(sl4a_socket):
+  """
+  <Purpose>
+    Stops tracking battery state. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":null}
+       
+  """
+  result = json_rpc(sl4a_socket, "batteryStopMonitoring")  
+  return result
+  
+  
+  
+  
+  
+def battery_check_present(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received battery presence data. 
+    Min SDK level=5
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "batteryCheckPresent")  
+  return result
+  
+  
+  
+  
+  
+
+def battery_get_health(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received battery health data:
+	1 - unknown;
+	2 - good;
+	3 - overheat;
+	4 - dead;
+	5 - over voltage;
+	6 - unspecified failure;
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     E.g., {"error":null,"id":0,"result":2}
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetHealth")  
+  return result
+  
+  
+  
+  
+  
+
+
+def battery_get_level(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received battery level (percentage). 
+    Min SDK level=5
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     E.g., {"error":null,"id":0,"result":99}
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetLevel")  
+  return result
+  
+  
+  
+  
+  
+  
+def battery_get_plug_type(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received plug type data:
+	-1 - unknown
+	0 - unplugged;
+	1 - power source is an AC charger
+	2 - power source is a USB port
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     E.g., {"error":null,"id":0,"result":2}
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetPlugType")  
+  return result
+  
+  
+  
+  
+  
+  
+def battery_get_status(sl4a_socket):
+  """
+  <Purpose>
+   Returns the most recently received battery status data:
+	1 - unknown;
+	2 - charging;
+	3 - discharging;
+	4 - not charging;
+	5 - full;
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     E.g., {"error":null,"id":0,"result":2}
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetStatus")  
+  return result
+  
+  
+  
+  
+  
+  
+def battery_get_technology(sl4a_socket):
+  """
+  <Purpose>
+   Returns the most recently received battery technology data. 
+   Min SDK level=5
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":"Li-ion"}
+
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetTechnology")  
+  return result 
+  
+  
+  
+  
+  
+  
+def battery_get_temperature(sl4a_socket):
+  """
+  <Purpose>
+   Returns the most recently received battery temperature. 
+   Min SDK level=5
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":269}
+     I'm not sure the unit of 269...
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetTemperature")  
+  return result
+  
+  
+  
+  
+  
+      
+def battery_get_voltage(sl4a_socket):
+  """
+  <Purpose>
+   Returns the most recently received battery voltage. 
+   Min SDK level=5
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":4140}
+     
+  """
+  result = json_rpc(sl4a_socket, "batteryGetVoltage")  
+  return result
+  
+  
+  
+  
+  
+def battery_read_data(sl4a_socket):
+  """
+  <Purpose>
+   Returns the most recently recorded battery data.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    Data returned:
+     {"error":null,"id":0,"result":{"level":98,
+     "technology":"Li-ion","status":3,"voltage":4140,
+     "plugged":2,"battery_present":true,"health":2,
+     "temperature":269}}
+     this call provides all the info above in a dic..
+     what's the point of all the above calls?
+     
+  """
+  result = json_rpc(sl4a_socket, "readBatteryData")  
+  return result
+
