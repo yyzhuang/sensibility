@@ -1,191 +1,43 @@
 """
 test_sensors.repy -- trying to use the SL4A JSON bridge to read sensors
 
-Albert Rafetseder, Datenkugerl e.U., Austria
-Yanyan Zhuang, University of British Columbia, Canada
+Yanyan Zhuang
 
 Change log:
-v 0.0.3, AR
-  Speed up receiving from the JSON interface. The response times 
-  should be so short that not waiting between receive attempts 
-  will not burn too many CPU cycles.
-
-v 0.0.2, YZ
-  Benchmarks for batteryGetLevel and readLocation
-
 v 0.0.1, 20131126 1350 AR
   Initial experiment, based on the Apache-licensed code in 
   /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+
 """
 
-def usage():
-  log("""
-test_sensors.repy -- check out the SL4A JSON interface to Android sensors.
-  
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
-
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
-    
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
-  else:
-    log(input_dic, "\n")
-
-def json_rpc(methodname, *args):
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
-  start = getruntime()
-  while bytes_sent < len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-
-  timeStart = (getruntime() - start)*1000
-  log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
-  
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-      #break
-    except SocketWouldBlockError:
-      # AR: Sleeping 30ms is excessive. Let's just spin in a tight loop 
-      #     and burn a few CPU cycles.
-      log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      #sleep(0.03)
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      # That's okay.
-      pass
-
-  timeDone = (getruntime() - start)*1000
-  log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + 'result: ' + result + '\n')
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
-  
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("android")
 
 if callfunc=="initialize":
   try:
     ap_port = int(callargs[0])
   except:
     # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
     usage()
     exitall()
   
-  ############## set up connection to sl4a ################
-  
-  start = getruntime()
-  # Connect to SL4A, do some random test.
+  # set up connection to sl4a 
   sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  log('time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n')
   
-  ############## batteryStartMonitoring ################  
-  
-  json_rpc("batteryStartMonitoring")
-  
-  ############## batteryGetLevel #############################
-  
-  for i in range(3):
-    sleep(1)
-    log('---------- iteration ' + str(i+1) + '----------\n')
-    json_rpc("batteryGetLevel")
-  
-  ############## startLocating #############################
-  
-  json_rpc("startLocating")
-  
-  ############## getLastKnownLocation #############################
-  
-  for i in range(3):
-    sleep(1)
-    log('---------- iteration ' + str(i+1) + '----------\n')
-    json_rpc("getLastKnownLocation")
-  
-  
-  ############## readLocation #############################
-  ### I can only get {} now :( ############################
-  
-  for i in range(3):
-    sleep(1)
-    log('---------- iteration ' + str(i+1) + '----------\n')
-    rl = json_rpc("readLocation")
-
-  ############## readSensors ##############################
-  
-  # Start sensing Timed
-  json_rpc("startSensingTimed", 1, 250)
-
-  for i in range(3):
-    sleep(1)
-    log('---------- iteration ' + str(i+1) + '----------\n')
-    s1 = json_rpc("readSensors")
-    s2 = json_rpc("sensorsGetAccuracy")
-    s3 = json_rpc("sensorsGetLight")
-    s4 = json_rpc("sensorsReadAccelerometer")
-    s5 = json_rpc("sensorsorsReadMagnetometer")
-    s6 = json_rpc("sensorsReadOrientation")
-  json_rpc("stopSensing")
-  
-  ############## wifiFacade ###############################
-  
-  # First start a wifi scan
-  # As this is not a muti-thread task, so we don't need to aquire a lock
-  
-  for i in range(3):
-    sleep(1)
-    log('---------- iteration ' + str(i+1) + '----------\n')
-    log('Check whether wifi is enabled ...\n')
-    json_rpc("checkWifiState")
-    log('Scan available wifi list ...\n')
-    json_rpc("wifiStartScan")
-    log('Return available wifi list ...\n')
-    json_rpc("wifiGetScanResults")
-    log('Return information about the currently active access point ...\n')
-    json_rpc("wifiGetConnectionInfo")
+  while True:
+    log("environment:\n")
+    result = android_get_environment(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("intent:\n")
+    result = android_get_intent(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("make a toast:\n")
+    result = android_make_toast(sl4a_socket, "Happy holidays!")
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
 
