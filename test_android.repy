@@ -38,7 +38,7 @@ if callfunc=="initialize":
     log(result + '\n\n')
     
     log("vibrating....:\n")
-    result = android_vibrate(sl4a_socket)
+    result = android_vibrate(sl4a_socket, 3000)
     log(result + '\n\n')
     
     sleep(10)
