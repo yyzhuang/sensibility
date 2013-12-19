@@ -19,7 +19,7 @@ dy_import_module_symbols("sensorutil")
 
 
 
-def android_get_launchable_applications(sl4a_socket):
+def application_manager_get_launchable_applications(sl4a_socket):
   """
   <Purpose>
     Get a list of all launchable application class names
@@ -43,7 +43,7 @@ def android_get_launchable_applications(sl4a_socket):
 
 
 
-def android_get_running_packages(sl4a_socket):
+def application_manager_get_running_packages(sl4a_socket):
   """
   <Purpose>
     Get a list of packages running activities or services. 

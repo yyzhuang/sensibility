@@ -26,11 +26,11 @@ if callfunc=="initialize":
   
   while True:
     log("get all launchable application class names:\n")
-    result = android_get_launchable_applications(sl4a_socket)
+    result = application_manager_get_launchable_applications(sl4a_socket)
     log(result + '\n\n')
     
     log("get all packages running activities or services:\n")
-    result = android_get_running_packages(sl4a_socket)
+    result = application_manager_get_running_packages(sl4a_socket)
     log(result + '\n\n')
     
     sleep(10)
