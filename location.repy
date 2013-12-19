@@ -1,159 +1,204 @@
 """
-location.repy -- trying to use the SL4A JSON bridge to read location info
-
-Yanyan Zhuang, UBC 
-
-Change log:
-v 0.0.1, 20131214 YZ
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+<Program>
+  location.repy 
+  Variables are mostly from: 
+  http://www.mithril.com.au/android/doc/LocationFacade.html
+	
+<Date Started>
+  December 19th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Trying to use the SL4A JSON bridge to read location info
+	 
 """
 
+dy_import_module_symbols("sensorutil")
 
-def usage():
-  log("""
-location.repy -- check out the SL4A JSON interface to location 
-http://www.mithril.com.au/android/doc/LocationFacade.html
+
+
+def location_providers(sl4a_socket):
+  """
+  <Purpose>
+    Returns available providers on the phone. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":["network","passive","gps"]}
+       
+  """
+  result = json_rpc(sl4a_socket, "locationProviders")  
+  return result
   
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
+  
 
 
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  # We need a real parser!!
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
+
+def location_provider_enabled(sl4a_socket, provider):
+  """
+  <Purpose>
+    Ask if provider is enabled 
     
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    provider - (String) Name of location provider, such as network, 
+               gps, or passive
     
+  <Return>
+    {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "locationProviderEnabled", provider) 
+  return result
+  
+
+
+
+
+
+def location_start_locating(sl4a_socket, minDistance = 60000, 
+                            minUpdateDistance = 30):
+  """
+  <Purpose>
+    Starts collecting location data. 
     
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    minDistance (Integer) minimum time between updates in 
+                  milliseconds (default=60000) 
+    minUpdateDistance (Integer) minimum distance between 
+                  updates in meters (default=30)
+    
+  <Return>
+    {"error":null,"id":0,"result":null}
+       
+  """
+  # ignoring the other two parameters for now
+  result = json_rpc(sl4a_socket, "startLocating") 
+  return result
+  
+  
+
+
+
+
+def location_read(sl4a_socket):
+  """
+  <Purpose>
+    Returns the current location as indicated by all available 
+    providers. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":{"network":{"time":1386301597691,
+    "speed":0,"altitude":0,"bearing":0,"provider":"network",
+    "longitude":-123.2488612,"latitude":49.2611662,"accuracy":20}}}
+
+       
+  """
+  # ignoring the other two parameters for now
+  result = json_rpc(sl4a_socket, "readLocation") 
+  return result
+  
+  
+  
+  
+  
+
+def location_get_last_known(sl4a_socket):
+  """
+  <Purpose>
+    Returns the last known location of the device. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":{
+    "passive":{"time":1386292156814,"speed":0,"altitude":0,
+              "bearing":0,"provider":"network",
+              "longitude":-123.2485678,"latitude":49.2610633,
+              "accuracy":36},
+    "gps":{"time":1386229651000,"speed":1.634053349494934,
+          "altitude":115,"bearing":235.37033081054688,
+          "provider":"gps","longitude":-123.24900053036713,
+          "latitude":49.26100681798307,"accuracy":40},
+    "network":{"time":1386292156814,"speed":0,"altitude":0,
+              "bearing":0,"provider":"network",
+              "longitude":-123.2485678,"latitude":49.2610633,
+              "accuracy":36}}}
+       
+  """
+  # ignoring the other two parameters for now
+  result = json_rpc(sl4a_socket, "getLastKnownLocation") 
+  return result
+  
+  
+  
+  
+
+
+def location_geocode(sl4a_socket, latitude, longitude, maxResults = 1):
+  """
+  <Purpose>
+    Returns a list of addresses for the given latitude and longitude. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    latitude (Double) 
+    longitude (Double) 
+    maxResults (Integer) maximum number of results (default=1) 
+    
+  <Return>
+    {"error":null,"id":0,"result":[{"locality":"Vancouver",
+    "admin_area":"British Columbia","thoroughfare":"Main Mall",
+    "feature_name":"2366","country_code":"CA",
+    "country_name":"Canada","postal_code":"V6T 1Z4"}]}
+
+       
+  """
+  # ignoring the other two parameters for now
+  # sometimes returns Service not Available...
+  if maxResults != 1:
+    result = json_rpc(sl4a_socket, "geocode", latitude, longitude, 
+                      maxResults)
   else:
-    log(input_dic, "\n")
+    result = json_rpc(sl4a_socket, "geocode", latitude, longitude)
+     
+  return result
+  
+  
+  
+  
+  
     
-    
-    
-def json_rpc(methodname, *args):  
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
-  
-  start = getruntime()
-  while bytes_sent<len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-  timeStart = (getruntime() - start)*1000
-  #log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
-  
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-    except SocketWouldBlockError:
-      #log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      pass
-  timeDone = (getruntime() - start)*1000
-  #log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + ': ' + result + '\n')
- 
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
-  
 
-if callfunc=="initialize":
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
-    usage()
-    exitall()
-  
-  ############## set up connection to sl4a ################
-  
-  start = getruntime()
-  # Connect to SL4A, do some random test.
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  time_connect = 'time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n'
-   
-  while True:        
-    provider = json_rpc("locationProviders")
-    log('\n')
+def location_stop_locating(sl4a_socket):
+  """
+  <Purpose>
+    Stops collecting location data. 
     
-    for p in provider['result']:    
-      json_rpc("locationProviderEnabled", p)
-      log('\n')
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
     
-    json_rpc("startLocating")
-    log('\n')
-    sleep(15)
-        
-    loc = json_rpc("readLocation")
-    log('\n')
-    
-    if loc['result'] == {}:
-      loc = json_rpc("getLastKnownLocation")
-      log('\n')
-      
-    location = loc['result']
-    n = None
-    try:
-      n = location['gps']
-      source = "gps"
-    except KeyError:
-      n = location['network']   
-      source = "network"  
-    
-    la = n['latitude'] 
-    lo = n['longitude']
-    
-    json_rpc("geocode", la, lo, 1)
-    log('\n')
-    
-    json_rpc("stopLocating")
-    log('\n')
-  
-    sleep(60*10)
+  <Return>
+    {"error":null,"id":0,"result":null}
+       
+  """
+  # ignoring the other two parameters for now
+  result = json_rpc(sl4a_socket, "stopLocating") 
+  return result
+

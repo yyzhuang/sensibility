@@ -1,0 +1,64 @@
+"""
+test_location.repy -- trying to use the SL4A JSON bridge to read location
+
+Yanyan Zhuang
+
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("location")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("get available providers on the phone:\n")
+    result = location_providers(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("ask if network provider is enabled:\n")
+    result = location_provider_enabled(sl4a_socket, "network")
+    log(result + '\n\n')
+    
+    log("ask if gps provider is enabled:\n")
+    result = location_provider_enabled(sl4a_socket, "gps")
+    log(result + '\n\n')
+    
+    log("ask if passive provider is enabled:\n")
+    result = location_provider_enabled(sl4a_socket, "passive")
+    log(result + '\n\n')
+    
+    log("start collecting location data:\n")
+    result = location_start_locating(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(15)
+    log("read the current location:\n")
+    result = location_read(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get last known location of the device:\n")
+    result = location_get_last_known(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get addresses:\n")
+    result = location_geocode(sl4a_socket, 49.2610633, -123.2485678)
+    log(result + '\n\n')
+    
+    log("stop collecting location data:\n")
+    result = location_stop_locating(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
