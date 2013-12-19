@@ -1,155 +1,216 @@
 """
-bluetooth.repy -- trying to use the SL4A JSON bridge to read bluetooth info
-
-Yanyan Zhuang, UBC 
-
-Change log:
-v 0.0.1, 20131211 YZ
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+<Program>
+  bluetooth.repy 
+  Variables are mostly from: 
+  http://www.mithril.com.au/android/doc/BluetoothFacade.html
+	
+<Date Started>
+  December 19th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Trying to use the SL4A JSON bridge to read Bluetooth info
+	 
 """
 
-def usage():
-  log("""
-battery.repy -- check out the SL4A JSON interface to battery 
-http://www.mithril.com.au/android/doc/AndroidFacade.html
-  
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
+dy_import_module_symbols("sensorutil")
 
 
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  # We need a real parser!!
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
+
+def bluetooth_check_state(sl4a_socket):
+  """
+  <Purpose>
+    Checks Bluetooth state. 
     
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
     
-    
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
-  else:
-    log(input_dic, "\n")
-    
-    
-    
-def json_rpc(methodname, *args):  
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
+  <Return>
+    returns: (Boolean) True if Bluetooth is enabled.
+       
+  """
+  result = json_rpc(sl4a_socket, "checkBluetoothState")  
+  return result
   
-  start = getruntime()
-  while bytes_sent<len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-  timeStart = (getruntime() - start)*1000
-  #log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
   
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-    except SocketWouldBlockError:
-      #log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      pass
-  timeDone = (getruntime() - start)*1000
-  #log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + ': ' + result + '\n')
-  
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
   
 
-if callfunc=="initialize":
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
-    usage()
-    exitall()
-  
-  ############## set up connection to sl4a ################
-  
-  start = getruntime()
-  # Connect to SL4A, do some random test.
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  time_connect = 'time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n'
-  #log(time_connect + '\n')
-  
-  while True:    
-    json_rpc("bluetoothDiscoveryStart")
-    log('\n')
-    
-    json_rpc("bluetoothIsDiscovering")
-    log('\n')
-    
-    json_rpc("bluetoothGetLocalAddress")
-    log('\n')
-        
-    json_rpc("bluetoothGetLocalName")
-    log('\n')
-    
-    log("scan mode for the local dongle: -1: Bluetooth is disabled;\
-    0: non discoverable and non connectable; 1: connectable non discoverable;\
-    3: connectable and discoverable.\n")
-    json_rpc("bluetoothGetScanMode")
-    log('\n')
-    
-    # set how long (secs) I want my device to be discoveralbe
-    # It prompts the user to accept whether to make the device discoverable...
-    # json_rpc("bluetoothMakeDiscoverable", 60) 
-    # log('\n')
-    
-    # json_rpc("bluetoothGetScanMode")
-    # log('\n')
-    
-    json_rpc("checkBluetoothState")
-    log('\n')
-    
-    json_rpc("bluetoothDiscoveryCancel")
-    log('\n')
 
-    sleep(60*10)
+def bluetooth_discovery_start(sl4a_socket):
+  """
+  <Purpose>
+    Start the remote device discovery process. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    (Boolean) true on success, false on error
+    E.g., {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothDiscoveryStart")  
+  return result
+  
+
+
+
+
+
+def bluetooth_get_local_address(sl4a_socket):
+  """
+  <Purpose>
+    Returns the hardware address of the local Bluetooth adapter.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    E.g., {"error":null,"id":0,"result":"60:A1:0A:90:E9:D7"}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothGetLocalAddress")  
+  return result
+  
+  
+  
+  
+  
+
+def bluetooth_get_local_name(sl4a_socket):
+  """
+  <Purpose>
+    Gets the Bluetooth visible device name
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    E.g., {"error":null,"id":0,"result":"GT-P1000"}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothGetLocalName")  
+  return result
+  
+  
+  
+  
+
+def bluetooth_set_local_name(sl4a_socket, name):
+  """
+  <Purpose>
+    Sets the Bluetooth Visible device name, returns True on success 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    (Boolean) true on success, false on error
+    E.g., {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothSetLocalName", name)  
+  return result
+  
+  
+  
+  
+    
+
+def bluetooth_is_discovering(sl4a_socket):
+  """
+  <Purpose>
+    Return true if the local Bluetooth adapter is currently in the 
+    device discovery process.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    E.g., {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothIsDiscovering")  
+  return result
+  
+  
+  
+  
+
+
+def bluetooth_get_scan_mode(sl4a_socket):
+  """
+  <Purpose>
+    Gets the scan mode for the local dongle.
+	Return values:
+	-1 when Bluetooth is disabled.
+	0 if non discoverable and non connectable.
+	1 connectable non discoverable.
+	3 connectable and discoverable.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":1}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothGetScanMode")  
+  return result
+  
+  
+  
+  
+
+def bluetooth_make_discoverable(sl4a_socket, duration = None):
+  """
+  <Purpose>
+    Requests that the device be discoverable for Bluetooth connections. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    duration (Integer) period of time, in seconds, during which the 
+                  device should be discoverable (default=300)
+    
+  <Return>
+    {"error":null,"id":0,"result":null}
+       
+  """
+  if duration == None:
+    result = json_rpc(sl4a_socket, "bluetoothMakeDiscoverable", 300)
+  else: 
+    result = json_rpc(sl4a_socket, "bluetoothMakeDiscoverable", duration)  
+  return result
+  
+  
+  
+  
+  
+      
+ 
+def bluetooth_discovery_cancel(sl4a_socket):
+  """
+  <Purpose>
+    Cancel the current device discovery process. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    (Boolean) true on success, false on error
+    E.g., {"error":null,"id":0,"result":true}
+       
+  """
+  result = json_rpc(sl4a_socket, "bluetoothDiscoveryCancel")  
+  return result

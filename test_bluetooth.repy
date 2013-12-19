@@ -1,0 +1,63 @@
+"""
+test_bluetooth.repy -- trying to use the SL4A JSON bridge to read sensors
+
+Yanyan Zhuang
+
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("bluetooth")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("check Bluetooth state:\n")
+    result = bluetooth_check_state(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("start the remote device discovery process:\n")
+    result = bluetooth_discovery_start(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("is Bluetooth in discovery process:\n")
+    result = bluetooth_is_discovering(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get the hardware address of the local Bluetooth adapter:\n")
+    result = bluetooth_get_local_address(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get the Bluetooth visible device name:\n")
+    result = bluetooth_get_local_name(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("set the Bluetooth Visible device name:\n")
+    result = bluetooth_set_local_name(sl4a_socket, "Giraffe!")
+    log(result + '\n\n')
+    
+    log("get the scan mode of Bluetooth:\n")
+    result = bluetooth_get_scan_mode(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("make the device discoverable for Bluetooth connections:\n")
+    result = bluetooth_make_discoverable(sl4a_socket, 60)
+    log(result + '\n\n')
+    
+    log("cancel the remote device discovery process:\n")
+    result = bluetooth_discovery_cancel(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
