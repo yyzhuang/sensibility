@@ -1,0 +1,35 @@
+"""
+test_location.repy -- trying to use the SL4A JSON bridge to read location
+
+Yanyan Zhuang
+
+
+"""
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("preferences")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("get list of Shared Preference Values:\n")
+    result = preferences_getall(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get a value from shared preferences:\n")
+    result = preferences_getvalue(sl4a_socket, "usagetracking")
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
