@@ -1,0 +1,38 @@
+"""
+test_signal_strength.repy -- trying to use the SL4A JSON bridge to read 
+                             signal strength
+
+"""
+
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("signal_strength")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("start tracking signal strengths:\n")
+    result = signal_strength_start_tracking(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get the current signal strengths:\n")
+    result = signal_strength_read(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("stop tracking signal strengths:\n")
+    result = signal_strength_stop_tracking(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+

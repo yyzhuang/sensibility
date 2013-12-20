@@ -1,132 +1,80 @@
 """
-signal_strength.repy -- trying to use the SL4A JSON bridge to read signal_strength info
-
-Yanyan Zhuang, UBC 
-
-Change log:
-v 0.0.1, 20131211 YZ
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+<Program>
+  signal_strength.repy 
+  Variables are mostly from: 
+  http://www.mithril.com.au/android/doc/SignalStrengthFacade.html
+	
+<Date Started>
+  December 19th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Trying to use the SL4A JSON bridge to read signal strength
+	 
 """
 
-
-def usage():
-  log("""
-signal_strength.repy -- check out the SL4A JSON interface to GSM signal strength 
-http://www.mithril.com.au/android/doc/SettingsFacade.html
-  
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
+dy_import_module_symbols("sensorutil")
 
 
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  # We need a real parser!!
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
+
+def signal_strength_start_tracking(sl4a_socket):
+  """
+  <Purpose>
+    Starts tracking signal strengths.
     
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
     
-    
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
-  else:
-    log(input_dic, "\n")
-    
-    
-    
-def json_rpc(methodname, *args):  
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
+  <Return>
+    {"error":null,"id":0,"result":null}
+       
+  """
+  result = json_rpc(sl4a_socket, "startTrackingSignalStrengths")  
+  return result
   
-  start = getruntime()
-  while bytes_sent<len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-  timeStart = (getruntime() - start)*1000
-  #log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
-  
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-    except SocketWouldBlockError:
-      #log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      pass
-  timeDone = (getruntime() - start)*1000
-  #log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + ': ' + result + '\n')
- 
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
   
 
-if callfunc=="initialize":
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
-    usage()
-    exitall()
-  
-  ############## set up connection to sl4a ################
-  
-  start = getruntime()
-  # Connect to SL4A, do some random test.
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  time_connect = 'time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n'
-   
-  while True:    
-    json_rpc("startTrackingSignalStrengths")
-    log('\n')
+
+
+def signal_strength_read(sl4a_socket):
+  """
+  <Purpose>
+    Returns the current signal strengths. 
     
-    json_rpc("readSignalStrengths")
-    log('\n')
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
     
-    json_rpc("stopTrackingSignalStrengths")
-    log('\n')
+  <Return>
+    (Bundle) A map of \"gsm_signal_strength\"
+    {"error":null,"id":0,"result":{"gsm_signal_strength":8,
+    "evdo_ecio":-1,"gsm_bit_error_rate":-1,"cdma_ecio":-1,
+    "cdma_dbm":-1,"evdo_dbm":-1}}
+       
+  """
+  result = json_rpc(sl4a_socket, "readSignalStrengths")  
+  return result
+
+
+
+
+
+
+def signal_strength_stop_tracking(sl4a_socket):
+  """
+  <Purpose>
+    Stops tracking signal strengths.
     
-    sleep(60*10)
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":null}
+       
+  """
+  result = json_rpc(sl4a_socket, "stopTrackingSignalStrengths")  
+  return result
