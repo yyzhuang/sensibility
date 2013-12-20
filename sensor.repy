@@ -1,145 +1,193 @@
 """
-sensor.repy -- trying to use the SL4A JSON bridge to read sensor info
-
-Yanyan Zhuang, UBC 
-
-Change log:
-v 0.0.1, 20131211 YZ
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
+<Program>
+  sensor.repy 
+  Variables are mostly from: 
+  http://www.mithril.com.au/android/doc/SensorManagerFacade.html
+	
+<Date Started>
+  December 19th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Trying to use the SL4A JSON bridge to read sensor info
+	 
 """
 
-
-def usage():
-  log("""
-sensor.repy -- check out the SL4A JSON interface to sensor 
-http://www.mithril.com.au/android/doc/SensorManagerFacade.html
-  
-Usage:
-  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
-    export AP_PORT=45678
-  2) Start SL4A in server mode using am, the Activity Manager, on that port:
-    (CAUTION: That's one long line!)
-    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
-  3) Finally, run this program and supply it with the AP_PORT:
-    python repy.py restrictionsfile test_sensors.repy $AP_PORT
-""")
+dy_import_module_symbols("sensorutil")
 
 
-def sl4a_dic_paser(input):
-  # Input a json string, and parse it into json dictionary.
-  # We need a real parser!!
-  try:
-    input = input.replace('null', '"null"')
-    input = input.replace('true', '"true"')
-    input = input.replace('false', '"false"')
-    vn = createvirtualnamespace('json_dic='+input, "eval_json_string")
-    result_context = vn.evaluate(_context)
-    return result_context['json_dic']
-  except Exception, e:
-    log("malformed input,", str(e), "\n")
-    exitall()
+
+def sensor_start_sensing(sl4a_socket, sensorNumber, delayTime):
+  """
+  <Purpose>
+    Starts recording sensor data to be available for polling. 
     
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    sensorNumber (Integer) 1 = All, 2 = Accelerometer, 
+                           3 = Magnetometer and 4 = Light
+    delayTime (Integer) Minimum time between readings in milliseconds
     
-    
-def log_dic(input_dic):
-  # Input a json_reply result, the result can be a variable or a dictionary
-  if type(input_dic) is dict:
-    for element in input_dic:
-      log(element, ":")
-      if type(input_dic[element]) is dict:
-        log("\n")
-        log_dic(input_dic[element])
-      else:
-        log(input_dic[element], "\n")
-  else:
-    log(input_dic, "\n")
-    
-    
-    
-def json_rpc(methodname, *args):  
-  args_List = []
-  if args != None:
-    for param in args:
-      args_List.append(param)
-  jsonstring = '{"params": ' + str(args_List) + ', "id": 0, "method": "' + methodname + '"}\n'
-  bytes_sent = 0
+  <Return>
+    {"error":null,"id":0,"result":null} 
+
+       
+  """
+  result = json_rpc(sl4a_socket, "startSensingTimed", sensorNumber, 
+                   delayTime)  
+  return result
   
-  start = getruntime()
-  while bytes_sent<len(jsonstring):
-    bytes_sent += sl4a_socket.send(jsonstring[bytes_sent:])
-    #log("Sent", bytes_sent, "bytes.\n") 
-  timeStart = (getruntime() - start)*1000
-  #log('time to send ' + methodname + ' command: ' + str(timeStart) + 'ms\n') 
-  
-  result = ""
-  start = getruntime()
-  while True:
-    try:
-      # XXX This is not guaranteed to receive the full result!
-      data = sl4a_socket.recv(2000)
-      result = result + data
-    except SocketWouldBlockError:
-      #log('--SocketWouldBlockError in receiving ' + methodname + '.\n')
-      if result != "":
-        break
-      pass
-    except SocketClosedRemote:
-      pass
-  timeDone = (getruntime() - start)*1000
-  #log('time to receive from ' + methodname + ': ' + str(timeDone) + 'ms\n')
-  
-  total_time = timeStart + timeDone
-  log('total time for ' + methodname + ': ' + str(total_time) + 'ms\n')
-  #log(methodname + ': ' + result + '\n')
- 
-  result_dic = sl4a_dic_paser(result)
-  if not type(result_dic) is dict:
-    log("Error parsing.\n")
-    exitall()
-  #log(methodname,'result: \n', result_dic['result'], '\n')
-  log(methodname, ":\n")
-  log_dic(result_dic['result'])
-  return result_dic
   
 
-if callfunc=="initialize":
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError) or missing at all (-> IndexError) 
-    # That's the user's fault! Teach them!
-    usage()
-    exitall()
+
+
+def sensor_read(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently recorded sensor data.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":{"time":1.386305361412E9,
+    "roll":-0.034543427079916,"zforce":9.959879,"yforce":-0.842759,
+    "yMag":164.9375,"xMag":-3.1875,"azimuth":0.005331491399556398,
+    "xforce":0.3439138,"zMag":-67.75,"pitch":0.08443046659231186,
+    "accuracy":3}}
+       
+  """
+  result = json_rpc(sl4a_socket, "readSensors") 
+  return result
   
-  ############## set up connection to sl4a ################
+
+
+
+
+def sensor_get_accuracy(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received accuracy value.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":3} 
+       
+  """
+  result = json_rpc(sl4a_socket, "sensorsGetAccuracy")  
+  return result
   
-  start = getruntime()
-  # Connect to SL4A, do some random test.
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
-  time_connect = 'time to connect to SL4A: ' + str((getruntime() - start)*1000) + 'ms\n'
-   
-  while True:    
-    json_rpc("startSensingTimed", 1, 30)
-    json_rpc("readSensors")
-    log('\n')
-    
-    json_rpc("sensorsGetAccuracy")
-    log('\n')
-    
-    json_rpc("sensorsGetLight")
-    log('\n')
-    
-    json_rpc("sensorsReadAccelerometer")
-    log('\n')
-    
-    json_rpc("sensorsReadMagnetometer")
-    log('\n')
-    
-    json_rpc("sensorsReadOrientation")
-    log('\n')
-    
-    json_rpc("stopSensing")
-    log('\n')
   
-    sleep(60*10)
+
+
+
+def sensor_get_light(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received light value.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":null} 
+       
+  """
+  result = json_rpc(sl4a_socket, "sensorsGetLight")  
+  return result
+  
+  
+  
+  
+    
+def sensor_read_accelerometer(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received accelerometer values. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    A list of Floats [(acceleration on the) X axis, Y axis, Z axis].
+    E.g., {"error":null,"id":0,"result":[0.3830723,-0.8036005,10.036493]}
+       
+  """
+  result = json_rpc(sl4a_socket, "sensorsReadAccelerometer") 
+  return result
+  
+  
+  
+  
+  
+
+def sensor_read_magnetometer(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received magnetic field values. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    A list of Floats [(magnetic field value for) X axis, Y axis, Z axis].
+    {"error":null,"id":0,"result":[29.5,206.875,-119.625]}
+       
+  """
+  result = json_rpc(sl4a_socket, "sensorsReadMagnetometer") 
+  return result
+  
+  
+  
+  
+  
+def sensor_read_orientation(sl4a_socket):
+  """
+  <Purpose>
+    Returns the most recently received orientation values. 
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    A list of Doubles [azimuth, pitch, roll]
+    {"error":null,"id":0,"result":[-0.17154279351234436,
+    0.080450139939785,-0.03844258934259415]}
+       
+  """
+  result = json_rpc(sl4a_socket, "sensorsReadOrientation") 
+  return result
+  
+  
+  
+  
+  
+  
+
+def sensor_stop_sensing(sl4a_socket):
+  """
+  <Purpose>
+    Stops collecting sensor data.
+    
+  <Arguments>
+    sl4a_socket - the socket that has been established for 
+                  RPC communication
+    
+  <Return>
+    {"error":null,"id":0,"result":null} 
+
+       
+  """
+  result = json_rpc(sl4a_socket, "stopSensing")  
+  return result

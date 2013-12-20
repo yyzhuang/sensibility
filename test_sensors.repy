@@ -1,17 +1,11 @@
 """
 test_sensors.repy -- trying to use the SL4A JSON bridge to read sensors
 
-Yanyan Zhuang
-
-Change log:
-v 0.0.1, 20131126 1350 AR
-  Initial experiment, based on the Apache-licensed code in 
-  /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
-
 """
 
+
 dy_import_module_symbols("sensorutil")
-dy_import_module_symbols("android")
+dy_import_module_symbols("sensor")
 
 if callfunc=="initialize":
   try:
@@ -25,24 +19,37 @@ if callfunc=="initialize":
   sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
   
   while True:
-    log("environment:\n")
-    result = android_get_environment(sl4a_socket)
+    log("start recording sensor data:\n")
+    result = sensor_start_sensing(sl4a_socket, 1, 30)
     log(result + '\n\n')
     
-    log("intent:\n")
-    result = android_get_intent(sl4a_socket)
+    log("read sensor data:\n")
+    sleep(2)
+    result = sensor_read(sl4a_socket)
     log(result + '\n\n')
     
-    log("make a toast:\n")
-    result = android_make_toast(sl4a_socket, "Happy holidays!")
+    log("get sensor accuracy:\n")
+    result = sensor_get_accuracy(sl4a_socket)
     log(result + '\n\n')
     
-    log("make a notification:\n")
-    result = android_notify(sl4a_socket, "A little box", "Click me!")
+    log("get light value:\n")
+    result = sensor_get_light(sl4a_socket)
     log(result + '\n\n')
     
-    log("vibrating....:\n")
-    result = android_vibrate(sl4a_socket)
+    log("get accelerometer value:\n")
+    result = sensor_read_accelerometer(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get magnetometer value:\n")
+    result = sensor_read_magnetometer(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get orientation value:\n")
+    result = sensor_read_orientation(sl4a_socket)
+    log(result + '\n\n')    
+    
+    log("stop recording sensor data:\n")
+    result = sensor_stop_sensing(sl4a_socket)
     log(result + '\n\n')
     
     sleep(10)
