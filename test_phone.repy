@@ -1,0 +1,106 @@
+"""
+test_phone.repy -- check out SL4A's PhoneFacade,
+http://www.mithril.com.au/android/doc/PhoneFacade.html
+
+Albert Rafetseder, Datenkugerl e.U., Austria
+
+Change log:
+v 0.0.1, 20131220 1549 AR
+  Refactored off the initial test_sensors.repy
+"""
+
+def usage():
+  log("""
+test_phone.repy, henceforth referred to as THIS_PROGRAM 
+  -- check out SL4A's PhoneFacade.
+  
+Usage:
+  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
+    export AP_PORT=45678
+  2) Start SL4A in server mode using am, the Activity Manager, on that port:
+    (CAUTION: That's one long line!)
+    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
+  3) Finally, run this program and supply it with the AP_PORT:
+    python repy.py restrictionsfile THIS_PROGRAM $AP_PORT
+""")
+
+
+
+mycontext['id'] = 0
+
+def send_rpc_request(socket_object, method_name, parameter_list):
+  json_request_string = '{"params": ' + str(parameter_list) + ', "id": ' + \
+    str(mycontext['id']) + ', "method": "' + \
+    str(methodname) + '"}\n'
+
+  mycontext['id'] += 1
+
+  bytes_sent = 0                                                              
+  while bytes_sent<len(json_request_string):                                           
+    bytes_sent += socket_object.send(json_request_string[bytes_sent:])                   
+
+
+
+def get_rpc_response(socket_object, timeout=5):
+  received_string = ""
+  time_started = getruntime()
+  while getruntime() < time_started+timeout:
+    try:
+      chunk = socket_object.recv(1024)
+      received_string += chunk
+    except SocketWouldBlockError:
+      sleep(0.01)
+  
+  return received_string
+
+
+                                      
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    # That's the user's fault! Teach them!
+    usage()
+    exitall()
+   
+  # Connect to SL4A, do some random test.
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+ 
+  # All PhoneFacade methods that don't require parameters 
+  phone_method_list = ["checkNetworkRoaming", "getCellLocation", 
+    "getDeviceId", "getDeviceSoftwareVersion", "getLine1Number", 
+    "getNeighboringCellInfo", "getNetworkOperator", "getNetworkOperatorName", 
+    "getNetworkType", "getPhoneType", "getSimCountryIso", "getSimOperator", 
+    "getSimOperatorName", "getSimSerialNumber", "getSimState", 
+    "getSubscriberId", "getVoiceMailAlphaTag", "getVoiceMailNumber", 
+    "readPhoneState"]
+     
+  # Start tracking                                                    
+  methodname = "startTrackingPhoneState"
+  send_rpc_request(sl4a_socket, methodname, [])
+  log(methodname)                                        
+  log(get_rpc_response(sl4a_socket, 5))                  
+  sleep(3)
+        
+  for methodname in phone_method_list:
+    send_rpc_request(sl4a_socket, methodname, [])
+    log(methodname) 
+    log(get_rpc_response(sl4a_socket, timeout=5))
+    sleep(1)
+
+  # Check out the ...Call and ...Dial methods too!
+  for methodname in ["phoneCall", "phoneCallNumber", "phoneDial", 
+    "phoneDialNumber"]:
+    send_rpc_request(sl4a_socket, methodname, ["+431427778622"])
+    log(methodname)
+    log(get_rpc_response(sl4a_socket, 5))
+    
+    
+  # Stop tracking                                                              
+  methodname = "stopTrackingPhoneState"
+  send_rpc_request(sl4a_socket, methodname, [])                       
+  log(methodname)                                                             
+  log(get_rpc_response(sl4a_socket, 5))                                         
+
