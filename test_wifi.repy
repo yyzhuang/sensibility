@@ -1,0 +1,44 @@
+"""
+test_wifi.repy -- trying to use the SL4A JSON bridge to WiFi
+
+Yanyan Zhuang
+
+"""
+
+
+dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("wifi")
+
+if callfunc=="initialize":
+  try:
+    ap_port = int(callargs[0])
+  except:
+    # Not castable (-> ValueError) or missing at all (-> IndexError) 
+    usage()
+    exitall()
+  
+  # set up connection to sl4a 
+  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  
+  while True:
+    log("check Wifi state:\n")
+    result = wifi_check_state(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("get information about the currently active access point:\n")
+    result = wifi_get_connection_info(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("starts a WiFi scan:\n")
+    result = wifi_start_scan(sl4a_socket)
+    log(result + '\n\n')
+    
+    log("access points found:\n")
+
+    result = wifi_get_scan_results(sl4a_socket)
+    log(result + '\n\n')
+    
+    sleep(10)
+    
+  sl4a_socket.close()
+
