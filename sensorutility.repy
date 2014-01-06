@@ -1,0 +1,169 @@
+"""
+<Program>
+  sensorutil.repy
+	
+<Date Started>
+  December 18th, 2013
+	
+<Author>
+  Yanyan Zhuang
+	
+<Purpose>
+  Provide utility methods for reading sensors
+	 
+"""
+
+
+def usage():
+  """
+  <Purpose>
+    Upon and exceptions caused by inappropriate user input, print usage
+    
+  <Arguments>
+    None
+    
+  <Return>
+    None
+    
+  """
+  log("""
+Usage:
+  1) On your shell, specify the AP_PORT for SL4A to listen on, e.g.
+    export AP_PORT=45678
+  2) Start SL4A in server mode using am, the Activity Manager, on that port:
+    (CAUTION: That's one long line!)
+    am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n 
+    com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher 
+    --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
+  3) Finally, run this program and supply it with the AP_PORT:
+    python repy.py restrictionsfile dylink.repy THIS_PROGRAM $AP_PORT
+""")
+
+
+
+
+
+def sl4a_dic_paser(result_string):
+  """
+  <Purpose>
+    Parse an input string to JSON format
+    
+  <Arguments>
+    result_string - the input string that needs to be parsed
+    
+  <Return>
+    A JSON dictionary after parsing
+    
+  """
+
+  # We need a real, much better parser!!
+  try:
+    result_string = result_string.replace('null', '"null"')
+    result_string = result_string.replace('true', '"true"')
+    result_string = result_string.replace('false', '"false"')
+    vn = createvirtualnamespace('json_dic=' + result_string, "eval_json_string")
+    result_context = vn.evaluate(_context)
+    return result_context['json_dic']
+  except Exception, e:
+    log("malformed input,", str(e), "\n")
+    exitall()
+ 
+ 
+    
+    
+    
+def log_dic(input_dic):
+  """
+  <Purpose>
+    Print the input JSON dictionary recursively
+    
+  <Arguments>
+    input_dic - the input JSON dictionary 
+    
+  <Return>
+    None
+    
+  """
+
+  # Input a result, the result can be a variable or dictionary
+  if type(input_dic) is dict:
+    for element in input_dic:
+      log(element, ":")
+      if type(input_dic[element]) is dict:
+        log("\n")
+        log_dic(input_dic[element])
+      else:
+        log(input_dic[element], "\n")
+  else:
+    log(input_dic, "\n")
+ 
+ 
+    
+ 
+   
+
+def send_rpc_request(socket_object, method_name, id, *parameter_list):
+  """
+  <Purpose>
+    Send a JSON RPC request to call method method_name with parameter_list
+    
+  <Arguments>
+    socket_object - the socket that has been established for 
+                    RPC communication
+    method_name  - the method to be called remotely, e.g., 
+                  android_get_environment
+    id - a unique id number
+    parameter_list  - the arguments of methodname
+    
+  <Return>
+    None
+    
+  """
+  args_list = []
+  if parameter_list != None:
+    for param in parameter_list:
+      args_list.append(param)
+
+  json_request_string = '{"params": ' + str(args_list) + ', "id": ' + \
+    str(id) + ', "method": "' + str(methodname) + '"}\n'
+
+
+  bytes_sent = 0                                                              
+  while bytes_sent < len(json_request_string):                                           
+    bytes_sent += socket_object.send(json_request_string[bytes_sent:])     
+
+
+
+              
+
+
+
+def get_rpc_response(socket_object, timeout = 5):
+  """
+  <Purpose>
+    Get JSON RPC response (call right after send_rpc_request)
+    
+  <Arguments>
+    socket_object - the socket that has been established for 
+                    RPC communication
+    timeout  - the timeout value to get the response
+    
+  <Return>
+    A string of returned result
+    
+  """
+
+  received_string = ""
+  time_started = getruntime()
+  while getruntime() < time_started + timeout:
+    try:
+      chunk = socket_object.recv(1024)
+      received_string += chunk
+    except SocketWouldBlockError:
+      if received_string != "":
+        break
+      pass
+    except SocketClosedRemote:
+      pass
+  
+  return received_string
