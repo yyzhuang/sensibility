@@ -28,10 +28,10 @@ v 0.0.1, 20140101 1200 AR
 # showcase them properly!
 
 sensors = {
-'AndroidFacade': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
+'Android': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
   'use': {
     'environment': {
-      'usage': 'Returns a string of various useful environment details .',
+      'usage': 'Returns a string of various useful environment details.',
       'arguments': 'None.',
       'returns': 'String',
       'example args': None,
@@ -42,15 +42,14 @@ sensors = {
       'arguments': 'None.',
       'returns': 'String',
       'example args': None,
-      'example returned values': '{"error":null,"id":0,"result":{"action":"com.googlecode.android_scripting.action.LAUNCH_SERVER","categories":null,"flags":268435456,"classname":"com.googlecode.android_scripting.activity.ScriptingLayerService","packagename":"com.googlecode.android_scripting","extras":{"com.googlecode.android_scripting.extra.USE_SERVICE_PORT":45678}}}'} },
+      'example returned values': '{"error":null,"id":0,"result":{"action":"com.googlecode.android_scripting.action.LAUNCH_SERVER","categories":null,"flags":268435456,"classname":"com.googlecode.android_scripting.activity.ScriptingLayerService","packagename":"com.googlecode.android_scripting","extras":{"com.googlecode.android_scripting.extra.USE_SERVICE_PORT":45678}}}'},
 
     'makeToast': {
       'usage': 'Returns the intent that launched the script.',
       'arguments': 'message (String).',
       'returns': 'None',
       'example args': "Happy holidays!",
-      'example returned values': '{"error":null,"id":0,"result":null}'}
-},
+      'example returned values': '{"error":null,"id":0,"result":null}'},
 
     'vibrate': {
       'usage': 'Returns the intent that launched the script.',
@@ -58,10 +57,29 @@ sensors = {
       'returns': 'None',
       'example args': 3000 (3 secs),
       'example returned values': '{"error":null,"id":0,"result":null}'}
-}
-}, # End AndroidFacade
+  }
+}, # End Android
 
-'BatteryManagerFacade': { # See http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
+'Application': { # See http://www.mithril.com.au/android/doc/ApplicationManagerFacade.html
+  'use': {
+    'getLaunchableApplications': { 
+      'usage': 'Returns a list of all launchable application class names.',
+      'arguments': 'None',
+      'returns': 'String',
+      'example args': 'None',
+      'example returned values': '{"error":null,"id":0,"result":{"Voice Dialer":"com.android.voicedialer.VoiceDialerActivity",...}'}},
+
+    'getRunningPackages': {
+      'usage': 'Returns a list of packages running activities or services.',
+      'arguments': 'None',
+      'returns': 'String',
+      'example args': 'None',
+      'example returned values': '{"error":null,"id":0,"result":["com.google.android.location","at.univie.sensorium","android","com.android.providers.contacts", ...]}'}
+
+  }
+}, # End Application
+
+'Battery': { # See http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
   'initialize': {
     'batteryStartMonitoring': {
       'usage': 'Starts tracking battery events. Call this before attempting any of the other battery-related calls.', 
@@ -69,6 +87,7 @@ sensors = {
       'returns': '{"error":null,"id":0,"result":null}',
       'example args': None,
       'example returned values': ''} },
+
   'deactivate': { 
     'batteryStopMonitoring': {
       'usage': 'Stops tracking battery events. Call this after you are done with all of your other battery-related calls.', 
@@ -76,6 +95,7 @@ sensors = {
       'returns': 'null',
       'example args': None,
       'example returned values': '{"error":null,"id":0,"result":null}'} },
+
   'use': {
     'batteryCheckPresent': {
       'usage': 'Returns the most recently received battery presence data.',
@@ -84,15 +104,51 @@ sensors = {
       'example args': None,
       'example returned values': '{"error":null,"id":0,"result":true}'}, 
 
+    'batteryGetHealth': {
+      'usage': 'Returns the most recently received battery health data.',
+      'arguments': 'None.',
+      'returns': 'Interger: 1 - unknown; 2 - good; 3 - overheat; 4 - dead; 5 - over voltage; 6 - unspecified failure.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":2}'},
+
     'batteryGetLevel': {
       'usage': 'Returns the most recently received battery level (percentage).',
       'arguments': 'None.',
       'returns': 'Integer',
       'example args': None,
-      'example returned values': '{"error":null,"id":0,"result":99}'} }
-}, # End BatteryManagerFacade
+      'example returned values': '{"error":null,"id":0,"result":99}'}, 
 
-'TextToSpeechFacade': { # no intialization / deactivation!
+    'batteryGetPlugType': {
+      'usage': 'Returns the most recently received plug type data.',
+      'arguments': 'None.',
+      'returns': 'Interger: -1 - unknown; 0 - unplugged; 1 - power source is an AC charger; 2 - power source is a USB port.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":2}'},
+
+    'batteryGetStatus': {
+      'usage': 'Returns the most recently received battery status data.',
+      'arguments': 'None.',
+      'returns': 'Interger: 1 - unknown; 2 - charging; 3 - discharging; 4 - not charging; 5 - full.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":3}'},
+
+    'batteryGetTechnology': {
+      'usage': 'Returns the most recently received battery technology data.',
+      'arguments': 'None.',
+      'returns': 'String.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":"Li-ion"}'},
+
+    'readBatteryData': {
+      'usage': 'Returns the most recently recorded battery data (all data).',
+      'arguments': 'None.',
+      'returns': 'String.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"level":98,"technology":"Li-ion","status":3,"voltage":4140,"plugged":2,"battery_present":true,"health":2,"temperature":269}}'}
+  }
+}, # End Battery
+
+'TextToSpeech': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
     'ttsSpeak': {
       'usage': 'Speaks the provided message via TTS.',
@@ -100,13 +156,16 @@ sensors = {
       'returns': 'null',
       'example args': ['Okay, human!'],
       'example returned values': '{"error":null,"id":0,"result":null}'}, 
+
     'ttsIsSpeaking': {
       'usage': 'Returns True if speech is currently in progress.',
       'arguments': 'None.',
       'returns': 'Boolean',
       'example args': None,
-      'example returned values': '{"error":null,"id":0,"result":false}'} } 
-}, # End TextToSpeechFacade
+      'example returned values': '{"error":null,"id":0,"result":false}'} }
+ 
+}, # End TextToSpeech
+
 } # End of big sensors dict
 
 
