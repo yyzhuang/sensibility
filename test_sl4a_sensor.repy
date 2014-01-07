@@ -28,6 +28,39 @@ v 0.0.1, 20140101 1200 AR
 # showcase them properly!
 
 sensors = {
+'AndroidFacade': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
+  'use': {
+    'environment': {
+      'usage': 'Returns a string of various useful environment details .',
+      'arguments': 'None.',
+      'returns': 'String',
+      'example args': None,
+      'example returned values': '{"error":null,"id":200000,"result":{"appcache":"\/data\/data\/com.googlecode.android_scripting\/cache","download":"\/mnt\/sdcard\/Download","TZ":{"id":"America\/Los_Angeles","offset":-28800000,"display":"Pacific Standard Time"},"SDK":"15","sdcard":{"blocksize":4096,"blockcount":3357270,"availblocks":3321917}}}'}, 
+
+    'getIntent': {
+      'usage': 'Returns the intent that launched the script.',
+      'arguments': 'None.',
+      'returns': 'String',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"action":"com.googlecode.android_scripting.action.LAUNCH_SERVER","categories":null,"flags":268435456,"classname":"com.googlecode.android_scripting.activity.ScriptingLayerService","packagename":"com.googlecode.android_scripting","extras":{"com.googlecode.android_scripting.extra.USE_SERVICE_PORT":45678}}}'} },
+
+    'makeToast': {
+      'usage': 'Returns the intent that launched the script.',
+      'arguments': 'message (String).',
+      'returns': 'None',
+      'example args': "Happy holidays!",
+      'example returned values': '{"error":null,"id":0,"result":null}'}
+},
+
+    'vibrate': {
+      'usage': 'Returns the intent that launched the script.',
+      'arguments': 'Integer (optional).',
+      'returns': 'None',
+      'example args': 3000 (3 secs),
+      'example returned values': '{"error":null,"id":0,"result":null}'}
+}
+}, # End AndroidFacade
+
 'BatteryManagerFacade': { # See http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
   'initialize': {
     'batteryStartMonitoring': {
