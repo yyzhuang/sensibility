@@ -27,59 +27,59 @@ v 0.0.1, 20140101 1200 AR
 # Please provide meaningful 'example args' to the sensors so we can 
 # showcase them properly!
 
+grace_period = 1
+
 sensors = {
-'Android': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
+'AndroidFacade': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
   'use': {
     'environment': {
       'usage': 'Returns a string of various useful environment details.',
       'arguments': 'None.',
       'returns': 'String',
       'example args': None,
-      'example returned values': '{"error":null,"id":200000,"result":{"appcache":"\/data\/data\/com.googlecode.android_scripting\/cache","download":"\/mnt\/sdcard\/Download","TZ":{"id":"America\/Los_Angeles","offset":-28800000,"display":"Pacific Standard Time"},"SDK":"15","sdcard":{"blocksize":4096,"blockcount":3357270,"availblocks":3321917}}}'}, 
+      'example returned values': '{"error":null,"id":200000,"result":{"appcache":"\/data\/data\/com.googlecode.android_scripting\/cache","download":"\/mnt\/sdcard\/Download","TZ":{"id":"America\/Los_Angeles","offset":-28800000,"display":"Pacific Standard Time"},"SDK":"15","sdcard":{"blocksize":4096,"blockcount":3357270,"availblocks":3321917}}}'},
 
     'getIntent': {
       'usage': 'Returns the intent that launched the script.',
       'arguments': 'None.',
       'returns': 'String',
       'example args': None,
-      'example returned values': '{"error":null,"id":0,"result":{"action":"com.googlecode.android_scripting.action.LAUNCH_SERVER","categories":null,"flags":268435456,"classname":"com.googlecode.android_scripting.activity.ScriptingLayerService","packagename":"com.googlecode.android_scripting","extras":{"com.googlecode.android_scripting.extra.USE_SERVICE_PORT":45678}}}'},
-
+      'example returned values': '{"error":null,"id":0,"result":{"action":"com.googlecode.android_scripting.action.LAUNCH_SERVER","categories":null,"flags":268435456,"classname":"com.googlecode.android_scripting.activity.ScriptingLayerService","packagename":"com.googlecode.android_scripting","extras":{"com.googlecode.android_scripting.extra.USE_SERVICE_PORT":45678}}}'}, 
+    
     'makeToast': {
       'usage': 'Returns the intent that launched the script.',
       'arguments': 'message (String).',
       'returns': 'None',
-      'example args': "Happy holidays!",
+      'example args': ['Happy holidays!'],
       'example returned values': '{"error":null,"id":0,"result":null}'},
 
     'vibrate': {
       'usage': 'Returns the intent that launched the script.',
-      'arguments': 'Integer (optional).',
+      'arguments': 'Integer (optional, in ms).',
       'returns': 'None',
-      'example args': 3000 (3 secs),
-      'example returned values': '{"error":null,"id":0,"result":null}'}
-  }
+      'example args': [3000],
+      'example returned values': '{"error":null,"id":0,"result":null}'} } # End use
 }, # End Android
 
-'Application': { # See http://www.mithril.com.au/android/doc/ApplicationManagerFacade.html
+'ApplicationFacade': { # See http://www.mithril.com.au/android/doc/ApplicationManagerFacade.html
   'use': {
     'getLaunchableApplications': { 
       'usage': 'Returns a list of all launchable application class names.',
       'arguments': 'None',
       'returns': 'String',
-      'example args': 'None',
-      'example returned values': '{"error":null,"id":0,"result":{"Voice Dialer":"com.android.voicedialer.VoiceDialerActivity",...}'}},
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"Voice Dialer":"com.android.voicedialer.VoiceDialerActivity",...}}'},
 
     'getRunningPackages': {
       'usage': 'Returns a list of packages running activities or services.',
       'arguments': 'None',
       'returns': 'String',
-      'example args': 'None',
-      'example returned values': '{"error":null,"id":0,"result":["com.google.android.location","at.univie.sensorium","android","com.android.providers.contacts", ...]}'}
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":["com.google.android.location","at.univie.sensorium","android","com.android.providers.contacts", ...]}'}  } # End use
 
-  }
 }, # End Application
 
-'Battery': { # See http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
+'BatteryFacade': { # See http://www.mithril.com.au/android/doc/BatteryManagerFacade.html
   'initialize': {
     'batteryStartMonitoring': {
       'usage': 'Starts tracking battery events. Call this before attempting any of the other battery-related calls.', 
@@ -148,7 +148,7 @@ sensors = {
   }
 }, # End Battery
 
-'TextToSpeech': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
+'TextToSpeechFacade': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
     'ttsSpeak': {
       'usage': 'Speaks the provided message via TTS.',
@@ -229,7 +229,11 @@ def get_rpc_response(socket_object, timeout=5):
       chunk = socket_object.recv(1024)
       received_string += chunk
     except SocketWouldBlockError:
-      sleep(0.01)
+      if received_string != "":
+        break
+      pass
+    except SocketClosedRemote:
+      pass
   
   return received_string
 
@@ -290,7 +294,7 @@ if callfunc=="initialize":
       send_rpc_request(sl4a_socket, init_method, init_args)
       sleep(grace_period)
       response = get_rpc_response(sl4a_socket)
-      log(" -- Done, returned '", response, "'.\n")
+      log("-- Done, returned " + response + "\n")
 
     # Perform the requested method (or all of them)
     # if method is neither None nor []: methodlist = method
@@ -302,7 +306,7 @@ if callfunc=="initialize":
       log("Performing " + method + "...")
       send_rpc_request(sl4a_socket, method, args)
       response = get_rpc_response(sl4a_socket)
-      log("-- Done, returned '" + response + "'.\n")
+      log("-- Done, returned " + response + "\n")
       sleep(grace_period)
 
     # Finally, disarm the facade again.
@@ -313,7 +317,7 @@ if callfunc=="initialize":
       send_rpc_request(sl4a_socket, init_method, init_args)
       sleep(grace_period)
       response = get_rpc_response(sl4a_socket)
-      log(" -- Done, returned '", response, "'.\n")
+      log("-- Done, returned " + response + "\n")
 
     # This is only required to "forget" methods of the current facade 
     # in demo-all mode; otherwise method would we would contain the 
