@@ -211,6 +211,133 @@ sensors = {
 
 }, # End Bluetooth
 
+# Camera doesn't work properly!
+
+
+'ContactsFacade': { # See http://www.mithril.com.au/android/doc/ContactsFacade.html
+  'use': {
+    'contactsGet': {
+      'usage': 'Returns a List of all contacts.',
+      'arguments': 'attributes (JSONArray) (optional) ',
+      'returns': '(List) a List of contacts as Maps.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[{"_id":"1","primary_email":"6"},{"_id":"2","primary_email":"13"},{"_id":"3","primary_email":"20","name":"real name"},...]}'},
+
+    'contactsGetAttributes': {
+      'usage': 'Returns a List of all possible attributes for contacts.',
+      'arguments': 'None',
+      'returns': '(List) of all possible attributes for contacts.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":["times_contacted","custom_ringtone","primary_organization","phonetic_name","status","label","number","type","mode","last_time_contacted","display_name","im_handle","_id","number_key","starred","primary_email","name","primary_phone","im_account","notes","im_protocol","send_to_voicemail"]}'},
+
+    'contactsGetById': {
+      'usage': 'Returns contacts by ID.',
+      'arguments': 'id (Integer)',
+      'returns': 'contact info',
+      'example args': [10],
+      'example returned values': '{"error":null,"id":0,"result":{"_id":"30","primary_email":"213","name":"real name"}}'},
+
+    'contactsGetCount': {
+      'usage': 'Returns the number of contacts.',
+      'arguments': 'None',
+      'returns': 'Number of contacts',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":344}'},
+
+    'contactsGetIds': {
+      'usage': 'Returns a List of all contact IDs.',
+      'arguments': 'None',
+      'returns': 'List of all contact IDs',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[1,2,3,4,5,.....,344]}'},
+  } # End use
+}, # End CommonIntents
+
+
+'LocationFacade': {
+  'initialize': {
+    'startLocating': {
+      'usage': 'Starts collecting location data.', 
+      'arguments': 'Optional: minDistance (Integer) minimum time between updates in milliseconds (default=60000); minUpdateDistance (Integer) minimum distance between updates in meters (default=30)',
+      'returns': 'null.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+
+  'deactivate': { 
+    'stopLocating': {
+      'usage': 'Stops collecting location data.', 
+      'arguments': 'None.',
+      'returns': 'null.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+
+  'use': {
+    'locationProviders': {
+      'usage': 'Returns availables providers on the phone.',
+      'arguments': 'None',
+      'returns': 'availables providers on the phone',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":["network","pasive","gps"]}'},
+
+    'locationProviderEnabled': {
+      'usage': 'Ask if provider is enabled.',
+      'arguments': '(String) Name of location provider',
+      'returns': 'true if provider is enabled',
+      'example args': ["network"],
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'readLocation': {
+      'usage': 'Returns the current location as indicated by all available providers.',
+      'arguments': 'None',
+      'returns': 'the current location as indicated by all available providers',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"network":{"time":1386301597691,"speed":0,"altitude":0,"bearing":0,"provider":"network","longitude":-123.2488612,"latitude":49.2611662,"accuracy":20}}}'},
+
+    'getLastKnownLocation': {
+      'usage': 'Returns the last known location of the device.',
+      'arguments': '(Map) A map of location information by provider',
+      'returns': 'the last known location of the device',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"passive":{"time":1386292156814,"speed":0,"altitude":0,"bearing":0,"provider":"network","longitude":-123.2485678,"latitude":49.2610633,"accuracy":36},"gps":{"time":1386229651000,"speed":1.634053349494934,"altitude":115,"bearing":235.37033081054688,"provider":"gps","longitude":-123.24900053036713,"latitude":49.26100681798307,"accuracy":40},"network":{"time":1386292156814,"speed":0,"altitude":0,"bearing":0,"provider":"network","longitude":-123.2485678,"latitude":49.2610633,"accuracy":36}}}'},
+
+    'geocode': {
+      'usage': 'Returns a list of addresses for the given latitude and longitude. .',
+      'arguments': 'latitude (Double), longitude (Double), maxResults (Integer) maximum number of results (default=1)',
+      'returns': '(List) A list of addresses',
+      'example args': [49.2610633, -123.2485678],
+      'example returned values': '{"error":null,"id":0,"result":[{"locality":"Vancouver","admin_area":"British Columbia","thoroughfare":"Main Mall","feature_name":"2366","country_code":"CA","country_name":"Canada","postal_code":"V6T 1Z4"}]}'},
+  }
+}, # End Location
+
+
+'PhoneFacade': { # See http://www.mithril.com.au/android/doc/PhoneFacade.html
+
+},  # End Phone
+
+'PreferencesFacade': { # See http://www.mithril.com.au/android/doc/PreferencesFacade.html
+  'use': {
+    'prefGetAll': {
+      'usage': 'Get list of Shared Preference Values.',
+      'arguments': 'filename (String) Desired preferences file. If not defined, uses the default Shared Preferences. (optional)',
+      'returns': '(Map) Map of key,value',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"present_usagetracking":false,"usagetracking":true}}'},
+
+    'prefGetValue': {
+      'usage': 'Read a value from shared preferences.',
+      'arguments': 'key (String), filename (String) Desired preferences file. If not defined, uses the default Shared Preferences. (optional)',
+      'returns': 'a value from shared preferences',
+      'example args': ["usagetracking"],
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+  } # End use
+},  # End PreferencesFacade
+
+
+'SensorFacade': { # See http://www.mithril.com.au/android/doc/SensorManagerFacade.html
+
+},
+
 'TextToSpeechFacade': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
     'ttsSpeak': {
@@ -284,7 +411,7 @@ def send_rpc_request(socket_object, method_name, parameter_list):
 
 
 
-def get_rpc_response(socket_object, timeout=5):
+def get_rpc_response(socket_object, timeout=10):
   received_string = ""
   time_started = getruntime()
   while getruntime() < time_started+timeout:
