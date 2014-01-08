@@ -335,8 +335,66 @@ sensors = {
 
 
 'SensorFacade': { # See http://www.mithril.com.au/android/doc/SensorManagerFacade.html
+  'initialize': {
+    'startSensingTimed': {
+      'usage': 'Starts recording sensor data to be available for polling.', 
+      'arguments': 'sensorNumber (Integer) 1 = All, 2 = Accelerometer, 3 = Magnetometer and 4 = Light; delayTime (Integer) Minimum time between readings in milliseconds',
+      'returns': 'null.',
+      'example args': [1, 30],
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
 
-},
+  'deactivate': { 
+    'stopSensing': {
+      'usage': 'Stops collecting senosr data.', 
+      'arguments': 'None.',
+      'returns': 'null.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+
+  'use': {
+    'readSensors': {
+      'usage': 'Returns the most recently recorded sensor data.', 
+      'arguments': 'None.',
+      'returns': 'the most recently recorded sensor data',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"time":1.386305361412E9,"roll":-0.034543427079916,"zforce":9.959879,"yforce":-0.842759,"yMag":164.9375,"xMag":-3.1875,"azimuth":0.005331491399556398,"xforce":0.3439138,"zMag":-67.75,"pitch":0.08443046659231186,"accuracy":3}}'},
+    
+    'sensorsGetAccuracy': {
+      'usage': 'Returns the most recently received accuracy value.', 
+      'arguments': 'None.',
+      'returns': 'null.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":3}'},
+
+    'sensorsGetLight': {
+      'usage': 'Returns the most recently received light value.', 
+      'arguments': 'None.',
+      'returns': 'null.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'},
+
+    'sensorsReadAccelerometer': {
+      'usage': 'Returns the most recently received accelerometer values.', 
+      'arguments': 'None.',
+      'returns': '(List) a List of Floats [(acceleration on the) X axis, Y axis, Z axis].',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[0.3830723,-0.8036005,10.036493]}'},
+
+    'sensorsReadMagnetometer': {
+      'usage': 'Returns the most recently received magnetic field value.', 
+      'arguments': 'None.',
+      'returns': '(List) a List of Floats [(magnetic field value for) X axis, Y axis, Z axis].',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[29.5,206.875,-119.625]}'},
+
+    'sensorsReadOrientation': {
+      'usage': 'Returns the most recently received orientation value.', 
+      'arguments': 'None.',
+      'returns': '(List) a List of Doubles [azimuth, pitch, roll].',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[-0.17154279351234436,0.080450139939785,-0.03844258934259415]}'},
+  }
+}, # End Sensor
 
 'TextToSpeechFacade': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
