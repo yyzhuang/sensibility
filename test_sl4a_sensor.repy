@@ -148,6 +148,69 @@ sensors = {
   }
 }, # End Battery
 
+'BluetoothFacade': { # See http://www.mithril.com.au/android/doc/BluetoothFacade.html
+  'initialize': {
+    'bluetoothDiscoveryStart': {
+      'usage': 'Start the remote device discovery process.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) true on success, false on error.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'} },
+
+  'deactivate': { 
+    'bluetoothDiscoveryCancel': {
+      'usage': 'Cancel the current device discovery process.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) true on success, false on error.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'} },
+
+  'use': {
+    'checkBluetoothState': {
+      'usage': 'Checks Bluetooth state',
+      'arguments': 'None',
+      'returns': '(Boolean) True if Bluetooth is enabled',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'bluetoothIsDiscovering': {
+      'usage': 'Return true if the local Bluetooth adapter is currently in the device discovery process.',
+      'arguments': 'None',
+      'returns': '(Boolean) True if Bluetooth is in the device discovery process',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'bluetoothGetLocalAddress': {
+      'usage': 'Returns the hardware address of the local Bluetooth adapter.',
+      'arguments': 'None',
+      'returns': '(String) The hardware address of the local Bluetooth adapter',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":"60:A1:0A:xx:xx:xx"}'},
+
+    'bluetoothGetLocalName': {
+      'usage': 'Gets the Bluetooth Visible device name.',
+      'arguments': 'None',
+      'returns': '(String) The Bluetooth Visible device name',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":"GT-P1000"}'},
+
+    'bluetoothSetLocalName': {
+      'usage': 'Sets the Bluetooth Visible device name.',
+      'arguments': '(String) New local name',
+      'returns': 'returns True on success',
+      'example args': ['Giraffe!'],
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'bluetoothGetScanMode': {
+      'usage': 'Gets the scan mode for the local dongle.',
+      'arguments': 'None',
+      'returns': '(Interger) Return values: -1 when Bluetooth is disabled; 0 if non discoverable and non connectable; 1 connectable non discoverable; 3 connectable and discoverable.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+    } # End use
+
+}, # End Bluetooth
+
 'TextToSpeechFacade': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
     'ttsSpeak': {
