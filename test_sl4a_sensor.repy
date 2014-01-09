@@ -396,6 +396,159 @@ sensors = {
   }
 }, # End Sensor
 
+'SettingsFacade': {
+  'use': {
+    'checkAirplaneMode': {
+      'usage': 'Checks the airplane mode setting.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) True if airplane mode is enabled.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'checkRingerSilentMode': {
+      'usage': 'Checks the ringer silent mode setting.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) True if ringer silent mode is enabled',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'checkScreenOn': {
+      'usage': 'Checks if the screen is on or off (requires API level 7).', 
+      'arguments': 'None.',
+      'returns': '(Boolean) True if the screen is currently on',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'getMaxMediaVolume': {
+      'usage': 'Returns the maximum media volume.', 
+      'arguments': 'None.',
+      'returns': 'the maximum media volume',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":15}'}, 
+
+    'getMaxRingerVolume': {
+      'usage': 'Returns the maximum ringer volume.', 
+      'arguments': 'None.',
+      'returns': 'the maximum ringer volume',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":7}'},
+
+    'getMediaVolume': {
+      'usage': 'Returns the current media volume.', 
+      'arguments': 'None.',
+      'returns': 'the current media volume',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":11}'},
+
+    'getRingerVolume': {
+      'usage': 'Returns the current ringer volume.', 
+      'arguments': 'None.',
+      'returns': 'the current ringer volume',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":0}'},
+
+    'getScreenBrightness': {
+      'usage': 'Returns the screen backlight brightness.', 
+      'arguments': 'None.',
+      'returns': '(Integer) the current screen brightness between 0 and 255',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":100}'},
+
+    'getScreenTimeout': {
+      'usage': 'Returns the current screen timeout in seconds.', 
+      'arguments': 'None.',
+      'returns': '(Integer) the current screen timeout in seconds.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":60}'},
+
+    'getVibrateMode': {
+      'usage': 'Checks Vibration setting. If ringer=true then query Ringer setting, else query Notification setting.', 
+      'arguments': 'ringer (Boolean) (optional).',
+      'returns': 'the current vibration setting',
+      'example args': ['true'],
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+  }
+}, # End
+
+'SignalStrengthFacade': { # See http://www.mithril.com.au/android/doc/SignalStrengthFacade.html
+  'initialize': {
+    'startTrackingSignalStrengths': {
+      'usage': 'Starts tracking signal strengths.', 
+      'arguments': 'None.',
+      'returns': 'null',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+
+  'deactivate': { 
+    'stopTrackingSignalStrengths': {
+      'usage': 'Stops tracking signal strength.', 
+      'arguments': 'None.',
+      'returns': 'null',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+
+  'use': {
+    'readSignalStrengths': {
+      'usage': 'Returns the current signal strengths.', 
+      'arguments': 'None.',
+      'returns': '(Bundle) A map of gsm_signal_strength',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"gsm_signal_strength":8,"evdo_ecio":-1,"gsm_bit_error_rate":-1,"cdma_ecio":-1,"cdma_dbm":-1,"evdo_dbm":-1}}'}
+  }
+}, # End SignalStrength
+
+
+'SmsFacade': { # See http://www.mithril.com.au/android/doc/SmsFacade.html
+}, # End Sms
+
+
+'ToneGeneratorFacade': { # See http://www.mithril.com.au/android/doc/ToneGeneratorFacade.html
+  'use': {
+    'generateDtmfTones': {
+      'usage': 'Generate DTMF tones for the given phone number.', 
+      'arguments': 'phoneNumber (String), toneDuration (Integer) duration of each tone in milliseconds (default=100).',
+      'returns': 'null',
+      'example args': ['32123332223993212333322321', 300],
+      'example returned values': '{"error":null,"id":0,"result":null}'
+}}
+}, # End ToneGeneratorFacade
+
+
+'WifiFacade': {
+'initialize': {
+    'wifiStartScan': {
+      'usage': 'Starts a scan for Wifi access points.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) True if the scan was initiated successfully.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":null}'} },
+   
+   # wifi does not have deactivate
+
+  'use': {
+    'checkWifiState': {
+      'usage': 'Checks Wifi state.', 
+      'arguments': 'None.',
+      'returns': '(Boolean) True if Wifi is enabled.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":true}'},
+
+    'wifiGetConnectionInfo': {
+      'usage': 'Returns information about the currently active access point.', 
+      'arguments': 'None.',
+      'returns': 'information about the currently active access point',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":{"mac_address":"60:a1:0a:90:e9:d8","bssid":"18:ef:63:fc:dc:00","ip_address":1281342848,"hidden_ssid":false,"network_id":0,"link_speed":26,"supplicant_state":"completed","ssid":"ubcsecure","rssi":-60}}'},
+
+    'wifiGetScanResults': {
+      'usage': 'Returns the list of access points found during the most recent Wifi scan.', 
+      'arguments': 'None.',
+      'returns': 'the list of access points found during the most recent Wifi scan.',
+      'example args': None,
+      'example returned values': '{"error":null,"id":0,"result":[{"ssid":"ubcvisitor","bssid":"18:ef:63:fc:dc:01","capabilities":"[ESS]","level":-79,"frequency":2462},{"ssid":"ubcsecure","bssid":"18:ef:63:fd:1d:f0","capabilities":"[WPA2-EAP-CCMP][ESS]","level":-79,"frequency":2462},{"ssid":"eduroam","bssid":"18:ef:63:fc:dc:02","capabilities":"[WPA-EAP-TKIP][WPA2-EAP-CCMP][ESS]","level":-75,"frequency":2462},...]}'},
+  }
+}, # End WifiFacade
+
 'TextToSpeechFacade': { # See http://www.mithril.com.au/android/doc/TextToSpeechFacade.html
   'use': {
     'ttsSpeak': {
