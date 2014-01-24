@@ -310,10 +310,6 @@ sensors = {
 }, # End Location
 
 
-'PhoneFacade': { # See http://www.mithril.com.au/android/doc/PhoneFacade.html
-
-},  # End Phone
-
 'PreferencesFacade': { # See http://www.mithril.com.au/android/doc/PreferencesFacade.html
   'use': {
     'prefGetAll': {
@@ -496,10 +492,6 @@ sensors = {
       'example returned values': '{"error":null,"id":0,"result":{"gsm_signal_strength":8,"evdo_ecio":-1,"gsm_bit_error_rate":-1,"cdma_ecio":-1,"cdma_dbm":-1,"evdo_dbm":-1}}'}
   }
 }, # End SignalStrength
-
-
-'SmsFacade': { # See http://www.mithril.com.au/android/doc/SmsFacade.html
-}, # End Sms
 
 
 'ToneGeneratorFacade': { # See http://www.mithril.com.au/android/doc/ToneGeneratorFacade.html
