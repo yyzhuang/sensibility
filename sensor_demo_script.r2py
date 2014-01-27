@@ -3,6 +3,7 @@ test_sl4a_sensor.repy -- check out SL4A's *Facade's into Android sensors,
 http://www.mithril.com.au/android/doc/index.html
 
 Albert Rafetseder, Datenkugerl e.U., Austria
+Yanyan Zhuang, UBC, Canada
 
 Change log:
 v 0.0.1, 20140101 1200 AR
