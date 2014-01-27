@@ -4,13 +4,13 @@ test_sensors.repy -- trying to use the SL4A JSON bridge to read sensors
 Yanyan Zhuang
 
 Change log:
-v 0.0.1, 20131126 1350 AR
+v 0.0.2, 20140103
   Initial experiment, based on the Apache-licensed code in 
   /mnt/sdcard/com.googlecode.pythonforandroid/extras/python/android.py
 
 """
 
-dy_import_module_symbols("sensorutil")
+dy_import_module_symbols("sensorutility")
 dy_import_module_symbols("android")
 
 if callfunc=="initialize":
@@ -23,25 +23,40 @@ if callfunc=="initialize":
   
   # set up connection to sl4a 
   sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+
+  android_method_list_no_para = android_get_method_list_no_para()
+  log(android_method_list_no_para, '\n')
+
+  android_method_list = android_get_method_list()
+  log(android_method_list, '\n')
+
+  mycontext['id'] = 0
   
-  while True:
-    log("environment:\n")
-    result = android_get_environment(sl4a_socket)
-    log(result + '\n\n')
-    
-    log("intent:\n")
-    result = android_get_intent(sl4a_socket)
-    log(result + '\n\n')
-    
-    log("make a toast:\n")
-    result = android_make_toast(sl4a_socket, "Happy holidays!")
-    log(result + '\n\n')
-    
-    log("vibrating....:\n")
-    result = android_vibrate(sl4a_socket, 3000)
-    log(result + '\n\n')
-    
-    sleep(10)
+  for methodname in android_method_list_no_para:
+    log('\n', methodname)
+    current = getruntime()
+    send_rpc_request(sl4a_socket, methodname, mycontext['id']) 
+    log(get_rpc_response(sl4a_socket, 5))
+    log("time: ", str(getruntime()-current) + '\n')
+    sleep(1)
+    mycontext['id'] += 1
+
+  methodname = "makeToast"
+  mycontext['id'] += 1
+  log('\n', methodname)
+  current = getruntime()
+  send_rpc_request(sl4a_socket, methodname, mycontext['id'], "Hello world...")                                                  
+  log(get_rpc_response(sl4a_socket, 5))
+  log("time: ", str(getruntime()-current) + '\n')
+
+  methodname = "vibrate"
+  mycontext['id'] += 1
+  log('\n', methodname)
+  current = getruntime()
+  # vibrate for 3 secs (3000 ms)
+  send_rpc_request(sl4a_socket, methodname, mycontext['id'], 3000)                                                                                     
+  log(get_rpc_response(sl4a_socket, 5))  
+  log("time: ", str(getruntime()-current) + '\n')
     
   sl4a_socket.close()
 

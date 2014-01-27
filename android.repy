@@ -1,7 +1,7 @@
 """
 <Program>
   android.repy 
-  Variables are mostly from: 
+  Methods are mostly from: 
   http://www.mithril.com.au/android/doc/AndroidFacade.html
 	
 <Date Started>
@@ -15,100 +15,42 @@
 	 
 """
 
-dy_import_module_symbols("sensorutil")
+# All Android methods that don't require parameters 
+android_method_list_no_para = ["environment", "getIntent"]
+
+# All Android methods that require parameters, 
+# including optional parameters 
+android_method_list = ["makeToast", "vibrate"]
 
 
-def android_get_environment(sl4a_socket):
+def android_get_method_list_no_para():
   """
   <Purpose>
-    Get various useful environment details 
+    Get all the methods that don't require parameters.
     
   <Arguments>
-    sl4a_socket - the socket that has been established for 
-                  RPC communication
+    None
     
   <Return>
-    Data returned:
-     TZ = Timezone
-       id = Timezone ID
-       display = Timezone display name
-       offset = Offset from UTC (in ms)
-     SDK = SDK Version
-     download = default download path
-     appcache = Location of application cache 
-     sdcard = Space on sdcard
-       availblocks = Available blocks
-       blockcount = Total Blocks
-       blocksize = size of block.
-       
+    Returns all the methods that don't require parameters.
+    
   """
-  result = json_rpc(sl4a_socket, "environment")  
-  return result
-  
+  return android_method_list_no_para
 
 
 
 
-def android_get_intent(sl4a_socket):
+
+def android_get_method_list():
   """
   <Purpose>
-    Get the intent that launched the script.
+    Get all the methods.
     
   <Arguments>
-    sl4a_socket - the socket that has been established for 
-                  RPC communication
+    None
     
   <Return>
-    Returns the intent that launched the script, e.g., 
-    com.googlecode.android_scripting.action.LAUNCH_SERVER
+    Returns all the methods.
     
   """
-  result = json_rpc(sl4a_socket, "getIntent")  
-  return result
-  
-  
-  
-  
-
-def android_make_toast(sl4a_socket, toast_string):
-  """
-  <Purpose>
-    Displays a short-duration Toast notification. 
-    
-  <Arguments>
-    sl4a_socket - the socket that has been established for 
-                  RPC communication
-    toast_string - the string you want to display as toast
-    
-  <Return>
-    Returns a result, e.g., {"error":null,"id":0,"result":null}
-    
-  """
-  result = json_rpc(sl4a_socket, "makeToast", toast_string)  
-  return result
-  
-  
-  
-  
-  
-  
-def android_vibrate(sl4a_socket, duration = None):
-  """
-  <Purpose>
-    Vibrates the phone or a specified duration in milliseconds. 
-    
-  <Arguments>
-    sl4a_socket - the socket that has been established for 
-                  RPC communication
-    duration - duration in milliseconds (default=300)
-    
-  <Return>
-    Returns a result, e.g., {"error":null,"id":0,"result":null}
-    
-  """
-  if duration != None:
-    result = json_rpc(sl4a_socket, "vibrate", duration)  
-  else:
-    result = json_rpc(sl4a_socket, "vibrate")
-    
-  return result
+  return android_method_list_no_para + android_method_list
