@@ -1,19 +1,33 @@
-# an example running this code:
-#
-# sensor name + method:
-# python repy.py restrictions.test dylink.repy sensortest.r2py \
-# 45678 BatteryFacade batteryGetLevel
-#
-# sensor name + method + argument:
-# python repy.py restrictions.test dylink.repy sensortest.r2py \
-# 45678 AndroidFacade vibrate 3000 (let your phone vibrate 3 sec)
+"""
+sensortest.r2py -- Sensibility Testbed demo code
 
+Yanyan Zhuang, UBC, Canada
+
+Change log:
+
+v 0.0.1, 20140215 1400 YZ
+  Using sensor lib code to pull data from a phone 
+  
+  Examples running this code:
+
+  1. User provide sensorname + method:
+  python repy.py restrictions.test dylink.repy sensortest.r2py \
+  45678 BatteryFacade batteryGetLevel
+
+  2. User provide sensorname + method + args (let phone vibrate 3 sec):
+  python repy.py restrictions.test dylink.repy sensortest.r2py \
+  45678 AndroidFacade vibrate 3000 
+
+  3. To specify those parameters in code instead of command line, 
+  see lines before "sensor_data = request_data(...)"
+
+"""
 
 dy_import_module_symbols("sensorlib")
 
 ap_port, facadelist, method, argslist = parse_argument(callargs)
 
-# XXX Do getresources() to find a possible source port, not hardcode it!
+# Do getresources() to find a possible source port, not hardcode it!
 sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 10101, 5)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
@@ -24,5 +38,7 @@ sensor_data = request_data(facadelist, method, argslist)
 
 for data in sensor_data:
   log(data, '\n')
+
+# TODO: include json parser!
 
 sl4a_socket.close()

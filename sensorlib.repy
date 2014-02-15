@@ -1,5 +1,6 @@
 """
-test_sl4a_sensor.repy -- check out SL4A's *Facade's into Android sensors,
+sensorlib.repy -- This is the core of the sensor library. 
+Check out SL4A's *Facade's into Android sensors,
 http://www.mithril.com.au/android/doc/index.html
 
 Albert Rafetseder, Datenkugerl e.U., Austria
@@ -9,6 +10,10 @@ Change log:
 v 0.0.1, 20140101 1200 AR
   Refactored off test_phone.repy, which itself was based on an older 
   rendition of test_sensors.repy
+
+v 0.0.2, 20140215 1400 YZ
+  Refactored the core part out from demo code sensor_demo_script.r2py
+
 """
 
 # This is the big "sensors" dict. Its entries are of form 
