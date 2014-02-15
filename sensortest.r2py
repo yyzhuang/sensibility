@@ -1,0 +1,28 @@
+# an example running this code:
+#
+# sensor name + method:
+# python repy.py restrictions.test dylink.repy sensortest.r2py \
+# 45678 BatteryFacade batteryGetLevel
+#
+# sensor name + method + argument:
+# python repy.py restrictions.test dylink.repy sensortest.r2py \
+# 45678 AndroidFacade vibrate 3000 (let your phone vibrate 3 sec)
+
+
+dy_import_module_symbols("sensorlib")
+
+ap_port, facadelist, method, argslist = parse_argument(callargs)
+
+# XXX Do getresources() to find a possible source port, not hardcode it!
+sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 10101, 5)
+
+# if user prefers to define sensor/method/arg in code, not command line: 
+# facadelist = ['AndroidFacade']
+# method = ['vibrate']
+# argslist = [2000] 
+sensor_data = request_data(facadelist, method, argslist)
+
+for data in sensor_data:
+  log(data, '\n')
+
+sl4a_socket.close()
