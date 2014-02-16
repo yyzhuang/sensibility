@@ -37,7 +37,8 @@ sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 10101, 5)
 sensor_data = request_data(facadelist, method, argslist)
 
 for data in sensor_data:
-  log(data, '\n')
+  parsed = json_parse(data)
+  log(parsed['result'], '\n')
 
 # TODO: include json parser!
 
