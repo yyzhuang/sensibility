@@ -478,7 +478,7 @@ _BUILTIN_OK = [
     
   #Added for repyv2
   'isinstance', 'BaseException', 'WindowsError', 'type', 'issubclass',
-  'ord', 'chr', 'getattr', 'hasattr', '__import__', 'open', 'enumerate', 'unicode'
+  'ord', 'chr'
   ]
 
     
