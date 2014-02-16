@@ -38,7 +38,8 @@ sensor_data = request_data(facadelist, method, argslist)
 
 for data in sensor_data:
   parsed = json_parse(data)
-  log(parsed['result'], '\n')
+  log("sensor data: ", parsed['result'], '\n')
+  log("error: ", parsed['error'], '\n')
 
 # TODO: include json parser!
 
