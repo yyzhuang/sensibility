@@ -41,6 +41,4 @@ for data in sensor_data:
   log("sensor data: ", parsed['result'], '\n')
   log("error: ", parsed['error'], '\n')
 
-# TODO: include json parser!
-
 sl4a_socket.close()

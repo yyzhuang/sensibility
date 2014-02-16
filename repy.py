@@ -41,6 +41,8 @@
 """
 
 import json
+import encodings 
+json.hasattr = hasattr
 
 import os
 import sys
