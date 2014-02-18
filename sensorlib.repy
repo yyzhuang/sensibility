@@ -637,43 +637,32 @@ def get_rpc_response(socket_object, timeout=10):
   return received_string
 
 def parse_argument(callargs):
-  if len(callargs) == 0:
-    usage()
-    log(sensors, "\n")
-    exitall()
-
-  # If we reach this line, we have at least one callarg, the AP_PORT
-  try:
-    ap_port = int(callargs[0])
-  except:
-    # Not castable (-> ValueError)? That's the user's fault!
-    usage()
-    exitall()
 
   facadelist = [] # List of facades to work through
   method = None # User-specified method to demo (if any)
   argslist = [] # User-specified argument list (if any)
 
-  if len(callargs) == 1: # No Facade etc. was specified, demo them all
+  if len(callargs) == 0: # No Facade etc. was specified, demo them all
     facadelist = sensors.keys()
-  elif len(callargs) == 2: # Demo the specified Facade
-    facadelist = [callargs[1]]
+  elif len(callargs) == 1: # Demo the specified Facade
+    facadelist = [callargs[0]]
     if facadelist[0] not in sensors.keys():
       usage()
       log("\nSorry, I don't know the Facade you specified.\n")
       exitall()
-  elif len(callargs) >= 3: # Demo one specific sensor method (possibly w/args)
-    facadelist = [callargs[1]]
-    method = [callargs[2]]
+  elif len(callargs) >= 2: # Demo one specific sensor method (possibly w/args)
+    facadelist = [callargs[0]]
+    method = [callargs[1]]
     if facadelist[0] not in sensors.keys() or \
       method[0] not in sensors[facadelist[0]]["use"]:
       usage()
       log("\nSorry, I don't know the Facade or sensor method you specified.\n")
       exitall()
     # Add any remaining arguments to the argslist
-    argslist = callargs[3:]
+    argslist = callargs[2:]
 
-  return (ap_port, facadelist, method, argslist)
+  # ap_port is currently hard coded!
+  return (45678, facadelist, method, argslist)
 
 def request_data(facadelist, method, argslist, sl4a_socket):
 
