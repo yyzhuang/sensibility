@@ -12,11 +12,11 @@ v 0.0.1, 20140215 1400 YZ
 
   1. User provide sensorname + method:
   python repy.py restrictions.test dylink.repy sensortest.r2py \
-  45678 BatteryFacade batteryGetLevel
+  BatteryFacade batteryGetLevel
 
   2. User provide sensorname + method + args (let phone vibrate 3 sec):
   python repy.py restrictions.test dylink.repy sensortest.r2py \
-  45678 AndroidFacade vibrate 3000 
+  AndroidFacade vibrate 3000 
 
   3. To specify those parameters in code instead of command line, 
   see lines before "sensor_data = request_data(...)"
@@ -26,6 +26,7 @@ v 0.0.1, 20140215 1400 YZ
 dy_import_module_symbols("sensorlib")
 
 ap_port, facadelist, method, argslist = parse_argument(callargs)
+
 sensor_socket = getconnection(ap_port)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
