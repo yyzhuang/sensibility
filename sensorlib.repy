@@ -675,7 +675,7 @@ def parse_argument(callargs):
 
   return (ap_port, facadelist, method, argslist)
 
-def request_data(facadelist, method, argslist):
+def request_data(facadelist, method, argslist, sl4a_socket):
 
   sensor_data = []
 
@@ -721,3 +721,21 @@ def request_data(facadelist, method, argslist):
     method = None
 
   return sensor_data
+
+
+
+def getconnection(ap_port):
+  ports = list(getresources()[0]['connport'])
+  
+  for port in ports:
+    port = int(port) 
+    try:
+      sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", port, 5)
+      log("Using port", port, "to get sensor data.\n")
+      return sl4a_socket
+    except Exception as e:
+      log("Using port", port, "had a problem:", str(e), '\n')
+      continue
+
+  log("No ports available.\n")
+  exitall()

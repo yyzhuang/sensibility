@@ -26,19 +26,18 @@ v 0.0.1, 20140215 1400 YZ
 dy_import_module_symbols("sensorlib")
 
 ap_port, facadelist, method, argslist = parse_argument(callargs)
-
-# Do getresources() to find a possible source port, not hardcode it!
-sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 10101, 5)
+sensor_socket = getconnection(ap_port)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
 # facadelist = ['AndroidFacade']
 # method = ['vibrate']
 # argslist = [2000] 
-sensor_data = request_data(facadelist, method, argslist)
+sensor_data = request_data(facadelist, method, argslist, sensor_socket)
 
 for data in sensor_data:
+  log(data, '\n')
   parsed = json_parse(data)
   log("sensor data: ", parsed['result'], '\n')
   log("error: ", parsed['error'], '\n')
 
-sl4a_socket.close()
+sensor_socket.close()
