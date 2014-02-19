@@ -686,7 +686,7 @@ def request_data(facadelist, method, argslist, sl4a_socket):
     #log("Time for", methodlist, "\n")
     for method in methodlist:
       args = argslist or sensors[facade]["use"][method]["example args"]
-      log("Performing " + method + "...\n")
+      log("Performing " + method + ".\n")
       send_rpc_request(sl4a_socket, method, args)
       response = get_rpc_response(sl4a_socket)
       sensor_data.append(response.strip())

@@ -10,35 +10,46 @@ v 0.0.1, 20140215 1400 YZ
   
   Examples running this code:
 
-  1. User provide sensorname + method:
-  python repy.py restrictions.test dylink.repy sensortest.r2py \
-  BatteryFacade batteryGetLevel
+  1. To get all the sensor values:
+  startv2 dylink.repy sensortest.r2py 
 
-  2. User provide sensorname + method + args (let phone vibrate 3 sec):
-  python repy.py restrictions.test dylink.repy sensortest.r2py \
-  AndroidFacade vibrate 3000 
+  2. User provide sensorname + method:
+  startv2 dylink.repy sensortest.r2py BatteryFacade batteryGetLevel
 
-  3. To specify those parameters in code instead of command line, 
-  see lines before "sensor_data = request_data(...)"
+  3. User provide sensorname + method + args (let phone vibrate 3 sec):
+  startv2 dylink.repy sensortest.r2py AndroidFacade vibrate 3000 
+
+  4. To specify those parameters in code instead of command line, 
+  facadelist = ['AndroidFacade']
+  method = ['vibrate']
+  argslist = [2000] 
+  TODO: Currently, both facadelist and method can only have one element.
 
 """
 
 dy_import_module_symbols("sensorlib")
 
+# parse the input arguments
 ap_port, facadelist, method, argslist = parse_argument(callargs)
 
+# get a connection to communicate with sensors
 sensor_socket = getconnection(ap_port)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
 # facadelist = ['AndroidFacade']
 # method = ['vibrate']
 # argslist = [2000] 
+# TODO: Currently, both facadelist and method can only have one element.
+
+# get sensor data
 sensor_data = request_data(facadelist, method, argslist, sensor_socket)
 
+# parse returned data and print to screen
 for data in sensor_data:
-  log(data, '\n')
   parsed = json_parse(data)
   log("sensor data: ", parsed['result'], '\n')
   log("error: ", parsed['error'], '\n')
+  log('\n')
 
+# close communication
 sensor_socket.close()
