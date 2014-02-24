@@ -37,22 +37,23 @@ sensor_socket = getconnection(ap_port)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
 facadelist = ['SensorFacade']
+methodlist = ['sensorsReadAccelerometer', 'sensorsReadMagnetometer', 'sensorsReadOrientation']
 
-# start sensing
-request_data(facadelist, ['startSensingTimed'], [1, 30], sensor_socket)
-
-# get sensor data
+# get sensor data and print to screen, 
 while True:
-  sensor_data = request_data(facadelist, ['sensorsReadAccelerometer'], [], sensor_socket)
+  try:
+    sensor_data = request_data(facadelist, methodlist, [], sensor_socket)
 
-  # parse returned data and print to screen
-  for data in sensor_data:
-    parsed = json_parse(str(data))
-    log("sensor data: ", parsed['result'], '\n')
-    log("error: ", parsed['error'], '\n')
+    # parse returned data and print to screen
+    for data in sensor_data:
+      parsed = json_parse(str(data))
+      log("sensor data: ", parsed['result'], '\n')
+      log("error: ", parsed['error'], '\n')
+    
     log('\n')
+    sleep(6)
 
-  sleep(6)
-
-# close communication
-sensor_socket.close()
+  except Exception as e:
+    log(str(e), '\n')
+    sensor_socket.close()
+    raise
