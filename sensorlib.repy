@@ -636,6 +636,14 @@ def get_rpc_response(socket_object, timeout=10):
   
   return received_string
 
+
+
+def get_connectionport():
+  mycontext['ap_port'] = 45678
+  return mycontext['ap_port']
+
+
+
 def parse_argument(callargs):
 
   facadelist = [] # List of facades to work through
@@ -661,8 +669,7 @@ def parse_argument(callargs):
     # Add any remaining arguments to the argslist
     argslist = callargs[2:]
 
-  # ap_port is currently hard coded!
-  return (45678, facadelist, method, argslist)
+  return (facadelist, method, argslist)
 
 def request_data(facadelist, method, argslist, sl4a_socket):
 
