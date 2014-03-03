@@ -553,7 +553,7 @@ sensors = {
       'usage': 'Speaks the provided message via TTS.',
       'arguments': 'message (String)',
       'returns': 'null',
-      'example args': ['Okay, human!'],
+      'example args': ['Annoying demo!'],
       'example returned values': '{"error":null,"id":0,"result":null}'}, 
 
     'ttsIsSpeaking': {

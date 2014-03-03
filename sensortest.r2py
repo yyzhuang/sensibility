@@ -30,7 +30,8 @@ v 0.0.1, 20140215 1400 YZ
 dy_import_module_symbols("sensorlib")
 
 # parse the input arguments
-ap_port, facadelist, method, argslist = parse_argument(callargs)
+facadelist, method, argslist = parse_argument(callargs)
+ap_port = get_connectionport()
 
 # get a connection to communicate with sensors
 sensor_socket = getconnection(ap_port)
