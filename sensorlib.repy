@@ -14,7 +14,7 @@ v 0.0.1, 20140101 1200 AR
 v 0.0.2, 20140215 1400 YZ
   Refactored the core part out from demo code sensor_demo_script.r2py
 
-v 0.0.3, 20140215 1400 YZ
+v 0.0.3, 20140304 1400 YZ
   Removed sensor dict, facade and methodlists. Users need to start/stop 
   certain sensing function by themselves, but this gives 
   them more flexibility.
@@ -26,9 +26,9 @@ grace_period = 1
 
 def usage():
   log("""
-We need a new usage log..
+Something went wrong in your code..
 """)
-
+  # we need a better log than above
 
 
 mycontext['id'] = 0
@@ -72,35 +72,6 @@ def get_connectionport():
   mycontext['ap_port'] = 45678
   return mycontext['ap_port']
 
-
-
-def parse_argument(callargs):
-
-  facadelist = [] # List of facades to work through
-  method = None # User-specified method to demo (if any)
-  argslist = [] # User-specified argument list (if any)
-
-  if len(callargs) == 0: # No Facade etc. was specified, demo them all
-    facadelist = sensors.keys()
-  elif len(callargs) == 1: # Demo the specified Facade
-    facadelist = [callargs[0]]
-    if facadelist[0] not in sensors.keys():
-      usage()
-      log("\nSorry, I don't know the Facade you specified.\n")
-      exitall()
-  elif len(callargs) >= 2: # Demo one specific sensor method (possibly w/args)
-    facadelist = [callargs[0]]
-    method = [callargs[1]]
-    if facadelist[0] not in sensors.keys() or \
-      method[0] not in sensors[facadelist[0]]["use"]:
-      usage()
-      log("\nSorry, I don't know the Facade or sensor method you specified.\n")
-      exitall()
-    # Add any remaining arguments to the argslist
-    argslist = callargs[2:]
-
-  # ap_port is currently hard coded!
-  return (facadelist, method, argslist)
 
 
 def start(sl4a_socket, startmethod, args):
@@ -167,18 +138,3 @@ def getconnection(ap_port):
 
   log("No ports available.\n")
   exitall()
-
-
-
-if callfunc=="initialize":
-#def access_raw_sensor():
-  '''
-   Let's make one call at a time!
-  '''
-  facadelist = sensors.keys()
-
-  for facade in facadelist:
-    # Initialize if required
-    if "initialize" in sensors[facade].keys():
-      init_method = sensors[facade]["initialize"].keys()[0]
-      log(init_method, '\n')

@@ -15,7 +15,7 @@ v 0.0.2, 20140304 1400 YZ
 
 """
 
-dy_import_module_symbols("sensorlibv2")
+dy_import_module_symbols("sensorlib")
 
 # get a connection to communicate with sensors
 port = get_connectionport()
