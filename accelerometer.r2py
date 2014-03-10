@@ -8,50 +8,31 @@ Change log:
 v 0.0.1, 20140215 1400 YZ
   Using sensor lib code to pull data from a phone 
   
-  Examples running this code:
-
-  1. To get all the sensor values:
-  startv2 dylink.repy sensortest.r2py 
-
-  2. User provide sensorname + method:
-  startv2 dylink.repy sensortest.r2py BatteryFacade batteryGetLevel
-
-  3. User provide sensorname + method + args (let phone vibrate 3 sec):
-  startv2 dylink.repy sensortest.r2py AndroidFacade vibrate 3000 
-
-  4. To specify those parameters in code instead of command line, 
-  facadelist = ['AndroidFacade']
-  method = ['vibrate']
-  argslist = [2000] 
-  TODO: Currently, both facadelist and method can only have one element.
+v 0.0.2, 20140304 1400 YZ
+  Removed facade and methodlists. Users need to start/stop 
+  certain sensing function by themselves, but this gives 
+  them more flexibility.
 
 """
 
-dy_import_module_symbols("sensorlib")
+dy_import_module_symbols("sensorlibv2")
 
 # get a connection to communicate with sensors
 port = get_connectionport()
 sensor_socket = getconnection(port)
 
 # if user prefers to define sensor/method/arg in code, not command line: 
-facadelist = ['SensorFacade']
-methodlist = ['sensorsReadAccelerometer', 'sensorsReadMagnetometer', 'sensorsReadOrientation']
-
-# get sensor data and print to screen, 
+start(sensor_socket, 'startSensingTimed', [1, 30])
+ 
 while True:
   try:
-    sensor_data = request_data(facadelist, methodlist, [], sensor_socket)
-
-    # parse returned data and print to screen
-    for data in sensor_data:
-      parsed = json_parse(str(data))
-      log("sensor data: ", parsed['result'], '\n')
-      log("error: ", parsed['error'], '\n')
-    
-    log('\n')
-    sleep(6)
+    sensor_data = request_data(sensor_socket, 'sensorsReadAccelerometer', []) 
+    sleep(2)
 
   except Exception as e:
     log(str(e), '\n')
+    stop(sensor_socket, 'stopSensing', [])
     sensor_socket.close()
     raise
+
+stop(sensor_socket, 'stopSensing', [])
