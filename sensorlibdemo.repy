@@ -33,7 +33,10 @@ v 0.0.2, 20140215 1400 YZ
 # Please provide meaningful 'example args' to the sensors so we can 
 # showcase them properly!
 
+# constants or global variables
 grace_period = 1
+AP_PORT = 45678
+mycontext['id'] = 0
 
 sensors = {
 'AndroidFacade': { # See http://www.mithril.com.au/android/doc/AndroidFacade.html
@@ -601,8 +604,6 @@ Given FACADE and SENSOR plus any additional arguments making up the
 
 
 
-mycontext['id'] = 0
-
 def send_rpc_request(socket_object, method_name, parameter_list):
   # Sanitize the parameters, None becomes an empty list
   parameter_list = parameter_list or []
@@ -639,9 +640,25 @@ def get_rpc_response(socket_object, timeout=10):
 
 
 def get_connectionport():
-  mycontext['ap_port'] = 45678
+  mycontext['ap_port'] = AP_PORT
   return mycontext['ap_port']
 
+
+def getconnection(ap_port):
+  ports = list(getresources()[0]['connport'])
+  
+  for port in ports:
+    port = int(port) 
+    try:
+      sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", port, 5)
+      log("Using port", port, "to get sensor data.\n")
+      return sl4a_socket
+    except Exception as e:
+      log("Using port", port, "had a problem:", str(e), '\n')
+      continue
+
+  log("No ports available.\n")
+  exitall()
 
 
 def parse_argument(callargs):
@@ -670,6 +687,7 @@ def parse_argument(callargs):
     argslist = callargs[2:]
 
   return (facadelist, method, argslist)
+
 
 def request_data(facadelist, method, argslist, sl4a_socket):
 
@@ -718,20 +736,3 @@ def request_data(facadelist, method, argslist, sl4a_socket):
 
   return sensor_data
 
-
-
-def getconnection(ap_port):
-  ports = list(getresources()[0]['connport'])
-  
-  for port in ports:
-    port = int(port) 
-    try:
-      sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", port, 5)
-      log("Using port", port, "to get sensor data.\n")
-      return sl4a_socket
-    except Exception as e:
-      log("Using port", port, "had a problem:", str(e), '\n')
-      continue
-
-  log("No ports available.\n")
-  exitall()
