@@ -21,7 +21,10 @@ v 0.0.3, 20140304 1400 YZ
 
 """
 
+# constants or global variables
 grace_period = 1
+AP_PORT = 45678
+mycontext['id'] = 0
 
 
 def usage():
@@ -30,8 +33,6 @@ Something went wrong in your code..
 """)
   # we need a better log than above
 
-
-mycontext['id'] = 0
 
 def send_rpc_request(socket_object, method_name, parameter_list):
   # Sanitize the parameters, None becomes an empty list
@@ -69,24 +70,26 @@ def get_rpc_response(socket_object, timeout=10):
 
 
 def get_connectionport():
-  mycontext['ap_port'] = 45678
+  mycontext['ap_port'] = AP_PORT
   return mycontext['ap_port']
 
 
 
-def start(sl4a_socket, startmethod, args):
-
-  send_rpc_request(sl4a_socket, startmethod, args)
-  response = get_rpc_response(sl4a_socket)
+def getconnection(ap_port):
+  ports = list(getresources()[0]['connport'])
   
-  parsed = json_parse(str(response))
-  error = parsed['error']
+  for port in ports:
+    port = int(port) 
+    try:
+      sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", port, 5)
+      log("Using port", port, "to get sensor data.\n")
+      return sl4a_socket
+    except Exception as e:
+      log("Using port", port, "had a problem:", str(e), '\n')
+      continue
 
-  if error != None:
-    log("Something went wrong in start!\n")
-    exitall()
-  else:
-    log("Starting ", startmethod, 'successful.\n')
+  log("No ports available.\n")
+  exitall()
 
 
 
@@ -106,35 +109,3 @@ def request_data(sl4a_socket, method, args):
     log(str(method), "data: ", result, '\n')
     return result
 
-
-def stop(sl4a_socket, stopmethod, args):
-
-  send_rpc_request(sl4a_socket, stopmethod, args)
-  response = get_rpc_response(sl4a_socket)
-  
-  parsed = json_parse(str(response))
-  error = parsed['error']
-
-  if error != None:
-    log("Something went wrong in stop!\n")
-    exitall()
-  else:
-    log("Stopping ", stopmethod, 'successful.\n')
-
-
-
-def getconnection(ap_port):
-  ports = list(getresources()[0]['connport'])
-  
-  for port in ports:
-    port = int(port) 
-    try:
-      sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", port, 5)
-      log("Using port", port, "to get sensor data.\n")
-      return sl4a_socket
-    except Exception as e:
-      log("Using port", port, "had a problem:", str(e), '\n')
-      continue
-
-  log("No ports available.\n")
-  exitall()
