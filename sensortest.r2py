@@ -27,7 +27,7 @@ v 0.0.1, 20140215 1400 YZ
 
 """
 
-dy_import_module_symbols("sensorlib")
+dy_import_module_symbols("sensorlibdemo")
 
 # parse the input arguments
 facadelist, method, argslist = parse_argument(callargs)
