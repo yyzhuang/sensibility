@@ -21,8 +21,7 @@ v 0.0.3, 20140304 1400 YZ
 
 """
 
-# constants or global variables
-grace_period = 1
+# constants and global variables
 AP_PORT = 45678
 mycontext['id'] = 0
 
