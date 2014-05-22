@@ -1,23 +1,27 @@
 """
 sensortest.r2py -- Sensibility Testbed demo code
 
+Albert Rafetseder, Datenkugerl e.U., Austria
 Yanyan Zhuang, UBC, Canada
 
 Change log:
 
 v 0.0.1, 20140215 1400 YZ
   Demo script to pull data from a phone 
+
+v 0.0.2, 20140521 1900 YZ
+  Demo script to pull data from a phone 
   
   Examples running this code:
 
   1. To get all the sensor values:
-  startv2 dylink.repy sensortest.r2py 
+  startv2 sensortest.r2py 
 
   2. User provide sensorname + method:
-  startv2 dylink.repy sensortest.r2py BatteryFacade batteryGetLevel
+  startv2 sensortest.r2py BatteryFacade batteryGetLevel
 
   3. User provide sensorname + method + args (let phone vibrate 3 sec):
-  startv2 dylink.repy sensortest.r2py AndroidFacade vibrate 3000 
+  startv2 sensortest.r2py AndroidFacade vibrate 3000 
 
   4. To specify those parameters in code instead of command line, 
   facadelist = ['AndroidFacade']
