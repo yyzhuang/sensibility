@@ -21,7 +21,7 @@ dy_import_module_symbols("sensorlib")
 port = get_connectionport()
 sensor_socket = getconnection(port)
 
-# if user prefers to define sensor/method/arg in code, not command line: 
+# define sensor/method/arg in code: 
 request_data(sensor_socket, 'startSensingTimed', [1, 30])
  
 while True:
@@ -31,8 +31,8 @@ while True:
 
   except Exception as e:
     log(str(e), '\n')
-    stop(sensor_socket, 'stopSensing', [])
+    request_data(sensor_socket, 'stopSensing', []) 
     sensor_socket.close()
-    raise
+    #raise
 
 request_data(sensor_socket, 'stopSensing', [])
