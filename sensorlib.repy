@@ -102,7 +102,7 @@ def request_data(sl4a_socket, method, args):
 
   if error != None:
     log("Something went wrong!\n")
-    exitall()
+    raise
   else:
     result = parsed['result']
     log(str(method), "data: ", result, '\n')
