@@ -22,13 +22,19 @@ To use the sensor code:
 4. upload your code
 
   albert@%1 !> upload dylink.repy
+  
   albert@%1 !> upload sensorlib.repy 
+  
   albert@%1 !> upload sensortest.r2py
+  
   albert@%1 !> show files
+  
   Files on '131.130.125.5:1224:v1': 'dylink.repy sensorlib.repy sensortest.r2py'
+  
   albert@%1 !>
 
 5. run your code
 
    albert@%1 !> startv2 dylink.repy sensortest.r2py 
+   
    albert@%1 !> startv2 dylink.repy sensortest.r2py BatteryFacade batteryGetLevel
