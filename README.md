@@ -1,7 +1,6 @@
 Sensibility Testbed repo
-
-Note: more updated code will be maintained at https://github.com/SensibilityTestbed/sensorlib
 ======
+(Note: more updated code will be maintained at https://github.com/SensibilityTestbed/sensorlib)
 
 To use the sensor code:
 
