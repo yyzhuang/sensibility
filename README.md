@@ -5,28 +5,30 @@ To use the sensor code:
 
 1. import necessary library:
 
-  dy_import_module_symbols("sensorutil")
+  dy_import_module_symbols("sensorlib")
+
+2. get a connection to communicate with sensors
   
-  dy_import_module_symbols("android")
-
-2. set up connection to sl4a:
-
-  sl4a_socket = openconnection("127.0.0.1", ap_port, "127.0.0.1", 12345, 5)
+  port = get_connectionport()
+  
+  sensor_socket = getconnection(port)
 
 3. use the above socket to get sensor values:
 
-  result = android_get_environment(sl4a_socket)
+  request_data(sensor_socket, 'startSensingTimed', [1, 30])
   
-  log(result + '\n\n')
+  request_data(sensor_socket, 'stopSensing', [])
 
-4. ./adb push test_sensors.repy path/to/repyv2 (e.g., /sdcard/sl4a/seattle/seattle_repyv2)
+4. upload your code
 
-5. cd /data/local/tmp
+  albert@%1 !> upload dylink.repy
+  albert@%1 !> upload sensorlib.repy 
+  albert@%1 !> upload sensortest.r2py
+  albert@%1 !> show files
+  Files on '131.130.125.5:1224:v1': 'dylink.repy sensorlib.repy sensortest.r2py'
+  albert@%1 !>
 
-   . ./exports.sh
+5. run your code
 
-6. cd path/to/repyv2
-
-   python repy.py restriction_file dylink.repy test_sensors.repy 45678
-   
-   here the port number 45678 is the local port sl4a is listening on (see exports.sh for value)
+   albert@%1 !> startv2 dylink.repy sensortest.r2py 
+   albert@%1 !> startv2 dylink.repy sensortest.r2py BatteryFacade batteryGetLevel
