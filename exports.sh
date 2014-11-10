@@ -6,5 +6,5 @@ export PYTHONHOME=/data/data/com.sensibilitytestbed/files/python
 export TEMP=$TEMP:/mnt/sdcard/com.sensibilitytestbed/extras/tmp/
 export PATH=$PATH:/data/data/com.sensibilitytestbed/files/python/bin
 
-#export AP_PORT=45678
-#am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
+export AP_PORT=45678
+am start -a com.googlecode.android_scripting.action.LAUNCH_SERVER -n com.googlecode.android_scripting/.activity.ScriptingLayerServiceLauncher --ei com.googlecode.android_scripting.extra.USE_SERVICE_PORT $AP_PORT
